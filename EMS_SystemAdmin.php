@@ -22,6 +22,11 @@ Date: December 8, 2013
 		<div class="logo">
 			<img src="images\Logo.jpg" alt="Sorry, this image could not be displayed" width= "454" height="153"/>
 		</div>
+		
+		<?php
+			// Start the session
+			session_start();
+		?>
 
 	</head>
 
@@ -33,16 +38,16 @@ Date: December 8, 2013
 			<h1>EMS-PPS</h1>
 			<br/>
 		</div>
-
+		
+		
 		
 
 		<div class="menu">
-			</br> <b>Links</b> </br></br>
-			<a href= "EMS_HomePage.html" >Home</a><br></br>
-			<a href= "EMS_EmployeeMaintenance.html">Manage Employees</a><br></br>
-			<a href= "EMS_EmployeeReports.html">Employee Reports</a><br></br>
-			<!-- if user is an administrator -->
-			<a href= "EMS_SystemAdmin.html">System Administration</a><br></br>
+			</br> <b>Operation Modes:</b> </br></br>
+			<a href= "EMS_EmployeeSearch.php" >Search For Employees</a><br></br>
+			<a href= "EMS_EmployeeMaintenance.php">Manage Employees</a><br></br>
+			<a href= "EMS_EmployeeReports.php">Employee Reports</a><br></br>
+			<a href= "EMS_HomePage.php" >Home</a><br></br>
 
 		</div>
 
@@ -50,9 +55,8 @@ Date: December 8, 2013
 		</div>
 
 		<div class="content"> </br>
-		
-		
-			<h2>Search for an Employee</h2>
+			<h2>System Administration</h2>
+
 			Blah blah?
 
 		</div>

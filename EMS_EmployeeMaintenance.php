@@ -23,6 +23,11 @@ Date: December 8, 2013
 			<img src="images\Logo.jpg" alt="Sorry, this image could not be displayed" width= "454" height="153"/>
 		</div>
 
+		<?php
+			// Start the session
+			session_start();
+		?>
+		
 	</head>
 
 
@@ -38,13 +43,14 @@ Date: December 8, 2013
 		
 
 		<div class="menu">
-			</br> <b>Links</b> </br></br>
-			<a href= "EMS_EmployeeSearch.html" >Search For Employees</a><br></br>
-			<a href= "EMS_HomePage.html" >Home</a><br></br>
-			<a href= "EMS_EmployeeReports.html">Employee Reports</a><br></br>
+			</br> <b>Operation Modes:</b> </br></br>
+			<a href= "EMS_EmployeeSearch.php" >Search For Employees</a><br></br>
+			<a href= "EMS_HomePage.php" >Home</a><br></br>
+			<a href= "EMS_EmployeeReports.php">Employee Reports</a><br></br>
 			<!-- if user is an administrator -->
-			<a href= "EMS_SystemAdmin.html">System Administration</a><br></br>
+			<a href= "EMS_SystemAdmin.php">System Administration</a><br></br>
 
+			
 		</div>
 
 		<div class="margin">
