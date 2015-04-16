@@ -26,6 +26,18 @@ Date: December 8, 2013
 		<?php
 			// Start the session
 			session_start();
+			
+			$lastName = "";
+			$firstName = "";
+			$SIN = "";
+			
+			$queryString = "";
+			
+			$_SESSION['serverName'] = $serverName;
+			$_SESSION['userName'] = $userName;
+			$_SESSION['password'] = $password;
+			$_SESSION['databaseName'] = $databaseName;	
+			$_SESSION['userType'] = $userType;
 		?>
 		
 	</head>
@@ -57,8 +69,65 @@ Date: December 8, 2013
 		<div class="content"> </br>
 		
 		
-			<h2>Search for an Employee</h2>
-			Blah blah?
+			<h2>Search Employees</h2>
+			<hr>
+			
+			<?php
+			if(!empty($_POST['firstName']))
+			{
+				$firstName = $_POST['firstName'];
+			}
+			else
+			{
+				$firstName = "";
+			}
+			
+			if(!empty($_POST['lastName']))
+			{
+				$lastName = $_POST['lastName'];
+			}
+			else
+			{
+				$lastName = "";
+			}
+			
+			if(!empty($_POST['SIN']))
+			{
+				$SIN = $_POST['SIN'];
+			}
+			else
+			{
+				$SIN = "";
+			}
+			
+			
+			echo "<form method='post'>
+							First Name: 
+							<input type='text' name='firstName' value='$firstName'>
+							&nbsp &nbsp Last Name: 
+							<input type='text' name='lastName' value='$lastName'></br></br>
+							Social Insurance Number: 
+							<input type='text' name='SIN' value='$SIN'>
+							</br></br>
+																			
+							<input type='submit' value='Search'><br><hr>
+						</form>";
+			
+			if(($lastName != "") || ($firstName != "") || ($SIN != ""))// make sure at least one of the search criteria pieces is not blank
+			{
+				//display lastname firstname and sin of employees found in list form.
+				//User will be able to click on them and display that employees info
+			}
+			
+			
+			
+			
+			
+			
+			
+			?>
+			
+			
 
 		</div>
 

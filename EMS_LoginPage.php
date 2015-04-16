@@ -85,7 +85,7 @@ Description: This page will allow the user to
 								if(!$link)
 								{
 									//if the database connection failed, send error message and quit
-									 echo "<br>Could not connect";
+									 echo "<br>Error: Could not connect to the database. Please check your input.";
 								}
 								
 							}
