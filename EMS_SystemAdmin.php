@@ -11,17 +11,13 @@ Date: December 8, 2013
 		<style>
 			body
 			{
-				background-color:#d0e4fe;
+				background-color:#585858;
 			}
 		</style>
 
 		<link rel="stylesheet" href="styles.css" type="text/css">
 
 		<title>EMS-PPS</title>
-
-		<div class="logo">
-			<img src="images\Logo.jpg" alt="Sorry, this image could not be displayed" width= "454" height="153"/>
-		</div>
 		
 		<?php
 			// Start the session
