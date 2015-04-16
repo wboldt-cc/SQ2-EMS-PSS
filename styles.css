@@ -4,7 +4,11 @@
  *Programmer: William Boldt
  *Date: December 8, 2013
  */
-
+ 
+a
+{
+	color:#FFFFFF;
+}
 
 .logo
 {
@@ -21,13 +25,14 @@
 
 .header
 {
-	background-color:#FFA500;
+	background-color:#585858;
+	color:#FFFFFF;
 	text-align:center;
 }
 
 .menu
 {
-	background-color:#d0e4fe;
+	background-color:#585858;
 	height:800;
 	width:15%;
 	float:left;
@@ -59,7 +64,7 @@
 
 .content
 {
-	background-color:#EEEEEE;
+	background-color:#FFFFFF;
 	height:800;
 	width:80%;
 	float:left;
