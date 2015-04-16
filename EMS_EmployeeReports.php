@@ -57,8 +57,11 @@ Date: December 8, 2013
 
 		<div class="content"> </br>
 			<h2>Employee Reports</h2>
-
-			Please select an option on the left.
+			<?php
+			echo "<form method='post'>
+						<input type='submit' value='Login'><br>
+				  </form>";
+			?>
 
 		</div>
 
