@@ -1,10 +1,9 @@
 <!---
-Filename: "Home Page.html"
-Programmer: William Boldt
-Date: December 8, 2013
+Filename: "EMS_EmployeeSearch.php"
+Programmers: William Boldt, , and 
+Date: April 17, 2015
 --->
 <html>
-
 
 	<head>
 
@@ -53,7 +52,7 @@ Date: December 8, 2013
 		</div>
 
 		
-
+		<!-- Display navigation menu -->
 		<div class="menu">
 			</br> <b>Operation Modes:</b> </br></br>
 			<a href= "EMS_HomePage.php" >Home</a><br></br>
@@ -71,8 +70,8 @@ Date: December 8, 2013
 		<div class="content"> </br>
 		
 		
-			<h2>Search Employees</h2>
-			<hr>
+			<h2>Search Employees</h2><hr>
+			
 			<form method='post'>
 			<?php
 			if(!empty($_POST['firstName']))
@@ -117,12 +116,12 @@ Date: December 8, 2013
 			
 			if(($lastNameToSearchFor != "") || ($firstNameToSearchFor != "") || ($SINtoSearchFor != ""))// make sure at least one of the search criteria pieces is not blank
 			{
-				$link = mysqli_connect($serverName, $userName, $password, $databaseName); //connects to the database
+				$link = mysqli_connect($serverName, $userName, $password, $databaseName);// connect to the database
 								
 				if(!$link)
 				{
 					//if the database connection failed send error message
-					 echo "<br>Error: Could not connect to the database. Please check your input.";
+					 echo "<br>Error: Could not connect to the database.";
 				}
 				else// we have a connection
 				{
@@ -130,26 +129,27 @@ Date: December 8, 2013
 					
 					echo "$dropdownMenu";
 							
-					if(!empty($_POST['employeeToDisplay']))// check if the user has selected an employee
+					if(!empty($_POST['employeeToDisplayDropDown']))// check if the user has selected an employee
 					{
-					$stringy = $_POST['employeeToDisplay'];
-					$blank = "";
-						echo "test     ";
-						echo "$stringy</br></br>";
+						$SINofEmployee = $_POST['employeeToDisplayDropDown'];
+						$placeHolder = "";// place holder until we have the data for each field
 						
-						echo "First Name: $blank </br>
-						      Last Name: $blank </br>
-							  SIN: $blank </br>
-							  Date of Birth: $blank </br>
-							  Employed with Company: $blank </br>
-							  Date of Hire: $blank </br>";
+						echo "test     ";
+						echo "$SINofEmployee</br></br>";
+						
+						echo "First Name: $placeHolder </br>
+						      Last Name: $placeHolder </br>
+							  SIN: $SINofEmployee </br>
+							  Date of Birth: $placeHolder </br>
+							  Employed with Company: $placeHolder </br>
+							  Date of Hire: $placeHolder </br>";
 						
 						$userType = $_SESSION['userType'];
 						
 						if($userType == "administrator")
 						{
-							echo "Date of Termination: $blank </br>
-								  Payment Information: $blank </br>";
+							echo "Date of Termination: $placeHolder </br>
+								  Payment Information: $placeHolder </br>";
 								
 						}
 						
@@ -158,20 +158,15 @@ Date: December 8, 2013
 					
 					
 					
-$link->close();
+					$link->close();
 								
 				}
 			}
 			
-			
-			
-			
-			
-			
+						
 			
 			?>
-			
-			
+						
 
 		</div>
 
@@ -184,8 +179,14 @@ $link->close();
 		
 		
 		<?php
-		
+		// this is where all of the functions for the page are declared
 			
+			/*
+			 * Function: 
+			 * Description: 
+			 * Parameters: 
+			 * Return: 
+			 */
 			function constructDropdownMenu($lastNameToSearchFor, $firstNameToSearchFor, $SINtoSearchFor, $link)
 			{
 				$returnString = "";
@@ -228,7 +229,7 @@ $link->close();
 				
 				//display lastname firstname and sin of employees found in list form.
 				//User will be able to click on them and display that employees info
-				$returnString = "<select name='employeeToDisplay'>
+				$returnString = "<select name='employeeToDisplayDropDown'>
 										<option value=''></option>";
 										
 				if($result = $link->query($queryString))// make sure query was successful
@@ -259,9 +260,16 @@ $link->close();
 				return $returnString;
 			}
 			
-			
+			/*
+			 * Function: 
+			 * Description: 
+			 * Parameters: 
+			 * Return: 
+			 */
 			function changeDisplayedEmployee()
 			{
+			
+			/* 	THIS IS JUST SOME CODE I GRABBED FROM A PREVIOUS ASSIGNMENT. IT DOES NOT WORK */
 			if($result = $link->query($queryString))
 						{
 							echo "<table border='1'>";
