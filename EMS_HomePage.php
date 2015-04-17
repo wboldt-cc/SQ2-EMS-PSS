@@ -42,6 +42,7 @@ Date: December 8, 2013
 
 		<div class="menu">
 			</br> <b>Operation Modes:</b> </br></br>
+			Home<br></br>
 			<a href= "EMS_EmployeeSearch.php" >Search For Employees</a><br></br>
 			<a href= "EMS_EmployeeMaintenance.php">Manage Employees</a><br></br>
 			<a href= "EMS_EmployeeReports.php">Employee Reports</a><br></br>
