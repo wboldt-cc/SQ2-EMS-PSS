@@ -130,11 +130,29 @@ Date: December 8, 2013
 					
 					echo "$dropdownMenu";
 							
-					if(!empty($_POST['employeeToDisplay']))
+					if(!empty($_POST['employeeToDisplay']))// check if the user has selected an employee
 					{
 					$stringy = $_POST['employeeToDisplay'];
+					$blank = "";
 						echo "test     ";
-						echo "$stringy";
+						echo "$stringy</br></br>";
+						
+						echo "First Name: $blank </br>
+						      Last Name: $blank </br>
+							  SIN: $blank </br>
+							  Date of Birth: $blank </br>
+							  Employed with Company: $blank </br>
+							  Date of Hire: $blank </br>";
+						
+						$userType = $_SESSION['userType'];
+						
+						if($userType == "administrator")
+						{
+							echo "Date of Termination: $blank </br>
+								  Payment Information: $blank </br>";
+								
+						}
+						
 					}
 					
 					
@@ -171,22 +189,72 @@ $link->close();
 			function constructDropdownMenu($lastNameToSearchFor, $firstNameToSearchFor, $SINtoSearchFor, $link)
 			{
 				$returnString = "";
+				$queryString = "";
 			
+																																
+				//select lastName, firstName, SIN from employees where employeeType != contract & employee is active
+				$queryString = "SELECT p_lastName, p_firstName, si_number FROM Person ";
+
+				if($lastNameToSearchFor != "")
+				{
+					$queryString .= "WHERE p_lastName LIKE '$lastNameToSearchFor%' ";
+				}
+				
+				if($firstNameToSearchFor != "")
+				{
+					if($lastNameToSearchFor != "")// check if the last name was not blank
+					{
+						$queryString .= "AND p_firstName LIKE '$firstNameToSearchFor%' ";
+					}
+					else// last name was blank
+					{
+						$queryString .= "WHERE p_firstName LIKE '$firstNameToSearchFor%' ";
+					}
+				}
+				
+				if($SINtoSearchFor != "")
+				{
+					if(($lastNameToSearchFor != "") || ($firstNameToSearchFor != ""))// check if either of the names were not blank
+					{
+						$queryString .= "AND si_number LIKE '$SINtoSearchFor%' ";
+					}
+					else// both names were blank
+					{
+						$queryString .= "WHERE si_number LIKE '$SINtoSearchFor%' ";
+					}
+				}
+				
+				$queryString .= "ORDER BY p_lastName";
+				
 				//display lastname firstname and sin of employees found in list form.
 				//User will be able to click on them and display that employees info
-				$returnString = "
-									<select name='employeeToDisplay'><!--dropdown box which specifies the sorting method-->
-										<option value=''></option>
-										<option value='$SINtoSearchFor'>$lastNameToSearchFor, $firstNameToSearchFor, $SINtoSearchFor</option>
-										<option value='CompanyName'>Dirt, Joe, 333 333 334</option>
-										<option value='ContactName'>Contact Name</option>
-									</select>
-									
-									<input type='submit' value='Display'><br>
-									
-									
+				$returnString = "<select name='employeeToDisplay'>
+										<option value=''></option>";
+										
+				if($result = $link->query($queryString))// make sure query was successful
+				{
+					while($row = $result->fetch_assoc())
+					{
+						$returnString .= "<option value='" . $row["si_number"] . "'>" . $row["p_lastName"] . ", "
+   						                 . $row["p_firstName"] . ", "
+										 . $row["si_number"] . "</option>";
+					}
+					
+					$returnString .= "</select><input type='submit' value='Display'><br>";
+					
+					$result->free();
+				}
+				else// query failed
+				{
+					$returnString = "There was an error while running the SQL script";
+				}												
 								
-								";
+				//$returnString .= "<option value='$SINtoSearchFor'>$lastNameToSearchFor, $firstNameToSearchFor, $SINtoSearchFor</option>
+										//<option value='CompanyName'>Dirt, Joe, 333 333 334</option>
+										//<option value='ContactName'>Contact Name</option>
+									//</select>
+									
+									//<input type='submit' value='Display'><br>";
 			
 				return $returnString;
 			}
@@ -194,7 +262,44 @@ $link->close();
 			
 			function changeDisplayedEmployee()
 			{
-			
+			if($result = $link->query($queryString))
+						{
+							echo "<table border='1'>";
+							echo "<tr>";
+							echo "<th>CustomerID</th>";
+							echo "<th>CompanyName</th>";
+							echo "<th>ContactName</th>";
+							echo "<th>ContactTitle</th>";
+							echo "<th>Address</th>";
+							echo "<th>City</th>";
+							echo "<th>Region</th>";
+							echo "<th>PostalCode</th>";
+							echo "<th>Country</th>";
+							echo "<th>Phone</th>";
+							echo "<th>Fax</th>";
+							echo "</tr>";
+							
+							while($row = $result->fetch_assoc())
+							{
+								echo "<tr>";
+								echo "<td>" . $row["CustomerID"] . "</td>";
+								echo "<td>" . $row["CompanyName"] . "</td>";
+								echo "<td>" . $row["ContactName"] . "</td>";
+								echo "<td>" . $row["ContactTitle"] . "</td>";
+								echo "<td>" . $row["Address"] . "</td>";
+								echo "<td>" . $row["City"] . "</td>";
+								echo "<td>" . $row["Region"] . "</td>";
+								echo "<td>" . $row["PostalCode"] . "</td>";
+								echo "<td>" . $row["Country"] . "</td>";
+								echo "<td>" . $row["Phone"] . "</td>";
+								echo "<td>" . $row["Fax"] . "</td>";
+								echo "</tr>";
+							}
+							
+							echo "</table>";
+							
+							$result->free();
+						}
 			}
 			
 			
