@@ -145,7 +145,7 @@ Description: This page will allow the user to
 		</div>
 
 		<div class="footer">
-			Copyright &copy Ava-Program-O!
+			Copyright &copy MATTHEWSOFT
 		</div>
 		
 		

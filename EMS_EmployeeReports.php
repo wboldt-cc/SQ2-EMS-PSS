@@ -66,7 +66,7 @@ Date: December 8, 2013
 		</div>
 
 		<div class="footer">
-			Copyright &copy Ava-Program-O!
+			Copyright &copy MATTHEWSOFT
 		</div>
 
 	</body>

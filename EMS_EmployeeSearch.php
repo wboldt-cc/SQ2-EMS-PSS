@@ -174,7 +174,7 @@ Date: April 17, 2015
 		</div>
 
 		<div class="footer">
-			Copyright &copy Ava-Program-O!
+			Copyright &copy MATTHEWSOFT
 		</div>
 		
 		
