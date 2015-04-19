@@ -56,7 +56,7 @@ Date: April 17, 2015
 		<div class="menu">
 			</br> <b>Operation Modes:</b> </br></br>
 			<a href= "EMS_HomePage.php" >Home</a><br></br>
-			Search For Employee</br></br>
+			Search For Employees</br></br>
 			<a href= "EMS_EmployeeMaintenance.php">Manage Employees</a><br></br>
 			<a href= "EMS_EmployeeReports.php">Employee Reports</a><br></br>
 			<!-- if user is an administrator -->
@@ -156,7 +156,6 @@ Date: April 17, 2015
 						{
 							echo "Date of Termination: $placeHolder </br>
 								  Payment Information: $placeHolder </br>";
-								
 						}
 						*/
 						
@@ -354,8 +353,11 @@ Date: April 17, 2015
 						
 				return $returnString;
 			}
+<<<<<<< HEAD
 					
 		
+=======
+>>>>>>> origin/master
 		?>
 		
 		
