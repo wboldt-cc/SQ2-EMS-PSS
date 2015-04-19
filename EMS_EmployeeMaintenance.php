@@ -30,6 +30,11 @@ Date: December 8, 2013
 		?>
 		
 		<script>
+			function getCurrentDate()
+			{
+				document.getElementById('employeeFeilds').innerHTML = "";
+			}
+		
 			function employeeFormChange()
 			{				
 				if(document.getElementById('employeeTypeDropdown').value == 'fullTimeEmployee')
@@ -38,34 +43,34 @@ Date: December 8, 2013
 					"<table border='0'>" +
 						"<tr>" +
 							"<th align='right'>First Name:</th>" +
-							"<td><input type='text' name='firstName'></td>" +
+							"<td><input type='text' id='firstName'></td>" +
 						"</tr>" +
 						"<tr>" +
 							"<th align='right'>Last Name:</th>" +
-							"<td><input type='text' name='lastName'></td>" +
+							"<td><input type='text' id='lastName'></td>" +
 						"</tr>" +
 						"<tr>" +
 							"<th align='right'>Date Of Birth:</th>" +
-							"<td><input type='text' name='dob'></td>" +
+							"<td><input type='date' id='dob' min='1940-01-01' max='<?php date_default_timezone_set("EST"); echo date('Y-m-d'); ?>'></td>" +
 						"</tr>" +
 						"<tr>" +
 							"<th align='right'>SIN:</th>" +
-							"<td><input type='text' name='sinNumber'></td>" +
+							"<td><input type='text' id='sinNumber'></td>" +
 						"</tr>" +
 					"</table>" +
 						"<h3>Business Information</h3>" +
 					"<table>" +
 						"<tr>" +
 							"<th align='right'>Date Of Hire:</th>" +
-							"<td><input type='text' name='doh'></td>" +
+							"<td><input type='date' id='dob' min='1940-01-01' max='<?php date_default_timezone_set("EST"); echo date('Y-m-d'); ?>'></td>" +
 						"</tr>" +
 						"<tr>" +
 							"<th align='right'>Date Of Termination:</th>" +
-							"<td><input type='text' name='dot'></td>" +
+							"<td><input type='date' id='dob' min='1940-01-01' max='<?php date_default_timezone_set("EST"); echo date('Y-m-d'); ?>'></td>" +
 						"</tr>" +
 						"<tr>" +
 							"<th align='right'>Salary:</th>" +
-							"<td><input type='text' name='salary'></td>" +
+							"<td><input type='text' id='salary'></td>" +
 						"</tr>" +
 					"</table>";
 				} 
@@ -75,34 +80,34 @@ Date: December 8, 2013
 					"<table border='0'>" +
 						"<tr>" +
 							"<th align='right'>First Name:</th>" +
-							"<td><input type='text' name='firstName'></td>" +
+							"<td><input type='text' id='firstName'></td>" +
 						"</tr>" +
 						"<tr>" +
 							"<th align='right'>Last Name:</th>" +
-							"<td><input type='text' name='lastName'></td>" +
+							"<td><input type='text' id='lastName'></td>" +
 						"</tr>" +
 						"<tr>" +
 							"<th align='right'>Date Of Birth:</th>" +
-							"<td><input type='text' name='dob'></td>" +
+							"<td><input type='date' id='dob' min='1940-01-01' max='<?php date_default_timezone_set("EST"); echo date('Y-m-d'); ?>'></td>" +
 						"</tr>" +
 						"<tr>" +
 							"<th align='right'>SIN:</th>" +
-							"<td><input type='text' name='sinNumber'></td>" +
+							"<td><input type='text' id='sinNumber'></td>" +
 						"</tr>" +
 					"</table>" +
 						"<h3>Business Information</h3>" +
 					"<table>" +
 						"<tr>" +
 							"<th align='right'>Date Of Hire:</th>" +
-							"<td><input type='text' name='doh'></td>" +
+							"<td><input type='date' id='dob' min='1940-01-01' max='<?php date_default_timezone_set("EST"); echo date('Y-m-d'); ?>'></td>" +
 						"</tr>" +
 						"<tr>" +
 							"<th align='right'>Date Of Termination:</th>" +
-							"<td><input type='text' name='dot'></td>" +
+							"<td><input type='date' id='dob' min='1940-01-01' max='<?php date_default_timezone_set("EST"); echo date('Y-m-d'); ?>'></td>" +
 						"</tr>" +
 						"<tr>" +
 							"<th align='right'>Hourly Rate:</th>" +
-							"<td><input type='text' name='hourlyRate'></td>" +
+							"<td><input type='text' id='hourlyRate'></td>" +
 						"</tr>" +
 					"</table>";
 				} 
@@ -112,34 +117,34 @@ Date: December 8, 2013
 					"<table border='0'>" +
 						"<tr>" +
 							"<th align='right'>First Name:</th>" +
-							"<td><input type='text' name='firstName'></td>" +
+							"<td><input type='text' id='firstName'></td>" +
 						"</tr>" +
 						"<tr>" +
 							"<th align='right'>Last Name:</th>" +
-							"<td><input type='text' name='lastName'></td>" +
+							"<td><input type='text' id='lastName'></td>" +
 						"</tr>" +
 						"<tr>" +
 							"<th align='right'>Date Of Birth:</th>" +
-							"<td><input type='text' name='dob'></td>" +
+							"<td><input type='date' id='dob' min='1940-01-01' max='<?php date_default_timezone_set("EST"); echo date('Y-m-d'); ?>'></td>" +
 						"</tr>" +
 						"<tr>" +
 							"<th align='right'>SIN:</th>" +
-							"<td><input type='text' name='sinNumber'></td>" +
+							"<td><input type='text' id='sinNumber'></td>" +
 						"</tr>" +
 					"</table>" +
 						"<h3>Business Information</h3>" +
 					"<table>" +
 						"<tr>" +
 							"<th align='right'>Season:</th>" +
-							"<td><input type='text' name='season'></td>" +
+							"<td><input type='text' id='season'></td>" +
 						"</tr>" +
 						"<tr>" +
 							"<th align='right'>Year:</th>" +
-							"<td><input type='text' name='year'></td>" +
+							"<td><input type='text' id='year'></td>" +
 						"</tr>" +
 						"<tr>" +
 							"<th align='right'>Piece Pay:</th>" +
-							"<td><input type='text' name='piecePay'></td>" +
+							"<td><input type='text' id='piecePay'></td>" +
 						"</tr>" +
 					"</table>";
 				} 
@@ -149,30 +154,30 @@ Date: December 8, 2013
 					"<table>" +
 						"<tr>" +
 							"<th align='right'>Last Name:</th>" +
-							"<td><input type='text' name='lastName'></td>" +
+							"<td><input type='text' id='lastName'></td>" +
 						"</tr>" +
 						"<tr>" +
 							"<th align='right'>Date Of Birth:</th>" +
-							"<td><input type='text' name='dob'></td>" +
+							"<td><input type='date' id='dob' min='1940-01-01' max='<?php date_default_timezone_set("EST"); echo date('Y-m-d'); ?>'></td>" +
 						"</tr>" +
 						"<tr>" +
 							"<th align='right'>BN:</th>" +
-							"<td><input type='text' name='sinNumber'></td>" +
+							"<td><input type='text' id='sinNumber'></td>" +
 						"</tr>" +
 					"</table>" +
 						"<h3>Business Information</h3>" +
 					"<table>" +
 						"<tr>" +
 							"<th align='right'>Contract Start Date:</th>" +
-							"<td><input type='text' name='cStartD'></td>" +
+							"<td><input type='date' id='dob' min='1940-01-01' max='<?php date_default_timezone_set("EST"); echo date('Y-m-d'); ?>'></td>" +
 						"</tr>" +
 						"<tr>" +
 							"<th align='right'>Contract Stop Date:</th>" +
-							"<td><input type='text' name='cStopd'></td>" +
+							"<td><input type='date' id='dob' min='1940-01-01' max='<?php date_default_timezone_set("EST"); echo date('Y-m-d'); ?>'></td>" +
 						"</tr>" +
 						"<tr>" +
 							"<th align='right'>Contract Pay:</th>" +
-							"<td><input type='text' name='contractPay'></td>" +
+							"<td><input type='text' id='contractPay'></td>" +
 						"</tr>" +
 					"</table>";
 				}
@@ -208,6 +213,7 @@ Date: December 8, 2013
 
 		<div class="content"> </br>
 			<h2>Employee Maintenance</h2>
+			
 			Employee Type:</br>
 			<select id='employeeTypeDropdown' onChange="employeeFormChange()">
 				<option></option>
