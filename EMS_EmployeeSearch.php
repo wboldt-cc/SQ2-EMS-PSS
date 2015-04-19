@@ -132,6 +132,12 @@ Date: April 17, 2015
 					if(!empty($_POST['employeeToDisplayDropDown']))// check if the user has selected an employee
 					{
 						$SINofEmployee = $_POST['employeeToDisplayDropDown'];
+						
+						
+						$employeeInfo = changeDisplayedEmployee($SINofEmployee, $link);
+						
+						echo $employeeInfo;
+						/*
 						$placeHolder = "";// place holder until we have the data for each field
 						
 						echo "test     ";
@@ -152,6 +158,7 @@ Date: April 17, 2015
 								  Payment Information: $placeHolder </br>";
 								
 						}
+						*/
 						
 					}
 					
@@ -198,18 +205,18 @@ Date: April 17, 2015
 
 				if($lastNameToSearchFor != "")
 				{
-					$queryString .= "WHERE p_lastName LIKE '$lastNameToSearchFor%' ";
+					$queryString .= "WHERE p_lastName LIKE '%$lastNameToSearchFor%' ";
 				}
 				
 				if($firstNameToSearchFor != "")
 				{
 					if($lastNameToSearchFor != "")// check if the last name was not blank
 					{
-						$queryString .= "AND p_firstName LIKE '$firstNameToSearchFor%' ";
+						$queryString .= "AND p_firstName LIKE '%$firstNameToSearchFor%' ";
 					}
 					else// last name was blank
 					{
-						$queryString .= "WHERE p_firstName LIKE '$firstNameToSearchFor%' ";
+						$queryString .= "WHERE p_firstName LIKE '%$firstNameToSearchFor%' ";
 					}
 				}
 				
@@ -217,15 +224,15 @@ Date: April 17, 2015
 				{
 					if(($lastNameToSearchFor != "") || ($firstNameToSearchFor != ""))// check if either of the names were not blank
 					{
-						$queryString .= "AND si_number LIKE '$SINtoSearchFor%' ";
+						$queryString .= "AND si_number LIKE '%$SINtoSearchFor%' ";
 					}
 					else// both names were blank
 					{
-						$queryString .= "WHERE si_number LIKE '$SINtoSearchFor%' ";
+						$queryString .= "WHERE si_number LIKE '%$SINtoSearchFor%' ";
 					}
 				}
 				
-				$queryString .= "ORDER BY p_lastName";
+				$queryString .= "ORDER BY p_lastName;";
 				
 				//display lastname firstname and sin of employees found in list form.
 				//User will be able to click on them and display that employees info
@@ -248,6 +255,7 @@ Date: April 17, 2015
 				else// query failed
 				{
 					$returnString = "There was an error while running the SQL script";
+//$returnString = $queryString;
 				}												
 								
 				//$returnString .= "<option value='$SINtoSearchFor'>$lastNameToSearchFor, $firstNameToSearchFor, $SINtoSearchFor</option>
@@ -266,53 +274,91 @@ Date: April 17, 2015
 			 * Parameters: 
 			 * Return: 
 			 */
-			function changeDisplayedEmployee()
+			function changeDisplayedEmployee($SINofEmployee, $link)
 			{
+				$returnString = "";
+				$fisrtName = "";
+				$lastName = "";
+				$dateOfBirth = "";
+				$employedWithCompany = "";
+				$dateOfHire = "";
+				$placeHolder = "";// place holder until we have the data for each field
+				
+				$queryString = "SELECT * FROM Person WHERE si_number='$SINofEmployee';";
 			
 			/* 	THIS IS JUST SOME CODE I GRABBED FROM A PREVIOUS ASSIGNMENT. IT DOES NOT WORK */
-			if($result = $link->query($queryString))
+				if($result = $link->query($queryString))
+				{
+				/*
+					echo "<table border='1'>";
+					echo "<tr>";
+					echo "<th>CustomerID</th>";
+					echo "<th>CompanyName</th>";
+					echo "<th>ContactName</th>";
+					echo "<th>ContactTitle</th>";
+					echo "<th>Address</th>";
+					echo "<th>City</th>";
+					echo "<th>Region</th>";
+					echo "<th>PostalCode</th>";
+					echo "<th>Country</th>";
+					echo "<th>Phone</th>";
+					echo "<th>Fax</th>";
+					echo "</tr>";
+					*/
+					
+					while($row = $result->fetch_assoc())
+					{
+						$returnString .= "First Name: " . $row['p_firstName'] . "</br>
+								  Last Name: " . $row['p_lastName'] . "</br>
+								  SIN: $SINofEmployee </br>
+								  Date of Birth: $placeHolder </br>
+								  Employed with Company: $placeHolder </br>
+								  Date of Hire: $placeHolder </br>";
+							
+						$userType = $_SESSION['userType'];
+						
+						if($userType == "administrator")
 						{
-							echo "<table border='1'>";
-							echo "<tr>";
-							echo "<th>CustomerID</th>";
-							echo "<th>CompanyName</th>";
-							echo "<th>ContactName</th>";
-							echo "<th>ContactTitle</th>";
-							echo "<th>Address</th>";
-							echo "<th>City</th>";
-							echo "<th>Region</th>";
-							echo "<th>PostalCode</th>";
-							echo "<th>Country</th>";
-							echo "<th>Phone</th>";
-							echo "<th>Fax</th>";
-							echo "</tr>";
-							
-							while($row = $result->fetch_assoc())
-							{
-								echo "<tr>";
-								echo "<td>" . $row["CustomerID"] . "</td>";
-								echo "<td>" . $row["CompanyName"] . "</td>";
-								echo "<td>" . $row["ContactName"] . "</td>";
-								echo "<td>" . $row["ContactTitle"] . "</td>";
-								echo "<td>" . $row["Address"] . "</td>";
-								echo "<td>" . $row["City"] . "</td>";
-								echo "<td>" . $row["Region"] . "</td>";
-								echo "<td>" . $row["PostalCode"] . "</td>";
-								echo "<td>" . $row["Country"] . "</td>";
-								echo "<td>" . $row["Phone"] . "</td>";
-								echo "<td>" . $row["Fax"] . "</td>";
-								echo "</tr>";
-							}
-							
-							echo "</table>";
-							
-							$result->free();
-						}
+							$returnString .= "Date of Termination: $placeHolder </br>
+								  Payment Information: $placeHolder </br>";
+								
+						}	
+					}
+					
+						/*echo "<tr>";
+						echo "<td>" . $row["CustomerID"] . "</td>";
+						echo "<td>" . $row["CompanyName"] . "</td>";
+						echo "<td>" . $row["ContactName"] . "</td>";
+						echo "<td>" . $row["ContactTitle"] . "</td>";
+						echo "<td>" . $row["Address"] . "</td>";
+						echo "<td>" . $row["City"] . "</td>";
+						echo "<td>" . $row["Region"] . "</td>";
+						echo "<td>" . $row["PostalCode"] . "</td>";
+						echo "<td>" . $row["Country"] . "</td>";
+						echo "<td>" . $row["Phone"] . "</td>";
+						echo "<td>" . $row["Fax"] . "</td>";
+						echo "</tr>";	
+*/
+
+										
+					
+					
+					$result->free();
+				}
+				else// query failed
+				{
+					$returnString = "Could not display the Employees Information. Sorry for the inconvenience";
+				}																
+						
+						
+						
+				return $returnString;
 			}
-			
-			
+					
 		
 		?>
+		
+		
 		
 		</form>
 
