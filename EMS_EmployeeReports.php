@@ -29,7 +29,11 @@ Date: December 8, 2013
 			$databaseName = $_SESSION['databaseName'];	
 			$userType = $_SESSION['userType'];
 			
-			$link = "";			
+			$link = "";		
+
+			$typeOfReport = "";
+			$companyName = "";	
+			$generatedReport = "";			
 			
 		?>
 		
@@ -64,26 +68,21 @@ Date: December 8, 2013
 		<div class="content"> </br>
 			<h2>Employee Reports</h2>
 			<?php
-			echo "<form method='post'>		
-					Which type of report would you like to generate? 
-						<select name='reportToGenerateDropDown'>
-										<option value=''></option>
-										<option value='sReport'>Seniority</option>
-										<option value='whwReport'>Weekly Hours Worked</option>";
-			if($userType == "administrator")
+			/* the following variables are used to have the report type the user selected stay selected when they submit the form */
+			$sReportSelected = "";
+			$whwReportSelected = "";
+			$pReportSelected = "";
+			$aeReportSelected = "";
+			$ieReportSelected = "";
+									
+			if(!empty($_POST['reportToGenerateDropDown']) && !empty($_POST['companyName']))
 			{
-				echo "<option value='pReport'>Payroll</option>
-					  <option value='aeReport'>Active Employee</option>
-					  <option value='ieReport'>Inactive Employee</option>";
-			}
-			
-			echo "		</select>
-						<input type='submit' value='Generate Report'><br><hr>										
-				  </form>";
-				  
-			$companyName = "test company";
-			$link = mysqli_connect($serverName, $userName, $password, $databaseName);// connect to the database
-								
+				$typeOfReport = $_POST['reportToGenerateDropDown'];
+				$companyName = $_POST['companyName'];
+				$generatedReport = "";
+				
+				$link = mysqli_connect($serverName, $userName, $password, $databaseName);// connect to the database
+
 				if(!$link)
 				{
 					//if the database connection failed send error message
@@ -91,15 +90,96 @@ Date: December 8, 2013
 				}
 				else// we have a connection
 				{
-					$stringToEcho = generate_sReport($link, $companyName);
-					$stringToEcho .= generate_whwReport($link, $companyName);
-					$stringToEcho .= generate_pReport($link, $companyName);
-					$stringToEcho .= generate_aeReport($link, $companyName);
-					$stringToEcho .= generate_ieReport($link, $companyName);
-			
-					echo "$stringToEcho";
+					switch($typeOfReport)
+					{
+					case "sReport":
+						$generatedReport = generate_sReport($link, $companyName);
+						$sReportSelected = "selected";
+						break;
+					case "whwReport":
+						$generatedReport .= generate_whwReport($link, $companyName);
+						$whwReportSelected = "selected";
+						break;
+					case "pReport":
+						$generatedReport .= generate_pReport($link, $companyName);
+						$pReportSelected = "selected";
+						break;
+					case "aeReport":
+						$generatedReport .= generate_aeReport($link, $companyName);
+						$aeReportSelected = "selected";
+						break;
+					case "ieReport":
+						$generatedReport .= generate_ieReport($link, $companyName);
+						$ieReportSelected = "selected";
+						break;
+					}
+					
+					$generatedReport .= "<br> &nbsp&nbspRun by: $userName<br>";
+					
 				}
 				
+			}	
+			else// user either hasn't chosen a report type or a company name (or both)
+			{
+				if(empty($_POST['companyName']))
+				{
+					$generatedReport .= "Please enter a name for the company to generate the reports for.<br>";
+				}
+				else
+				{
+					$companyName = $_POST['companyName'];
+				}
+				
+				if(empty($_POST['reportToGenerateDropDown']))
+				{
+					$generatedReport .= "Please select a report type from the drop down menu.";
+				}
+				else
+				{
+					$typeOfReport = $_POST['reportToGenerateDropDown'];
+					switch($typeOfReport)
+					{
+					case "sReport":
+						$sReportSelected = "selected";
+						break;
+					case "whwReport":
+						$whwReportSelected = "selected";
+						break;
+					case "pReport":
+						$pReportSelected = "selected";
+						break;
+					case "aeReport":
+						$aeReportSelected = "selected";
+						break;
+					case "ieReport":
+						$ieReportSelected = "selected";
+						break;
+					}
+				}
+				
+			}
+			
+			echo "<form method='post'>		
+					What is the name of the company to display: &nbsp&nbsp&nbsp&nbsp&nbsp
+					<input type='text' name='companyName' value='$companyName'><br>
+					Which type of report would you like to display? 
+						<select name='reportToGenerateDropDown' value='$typeOfReport'>
+										<option value=''></option>
+										<option value='sReport' $sReportSelected>Seniority</option>
+										<option value='whwReport' $whwReportSelected>Weekly Hours Worked</option>";
+			if($userType == "administrator")
+			{
+				echo "<option value='pReport' $pReportSelected>Payroll</option>
+					  <option value='aeReport' $aeReportSelected>Active Employees</option>
+					  <option value='ieReport' $ieReportSelected>Inactive Employees</option>";
+			}
+			
+			echo "		</select>
+						<input type='submit' value='Generate Report'><br><hr>										
+				  </form>";
+				  
+			
+			echo "$generatedReport";
 				
 			?>
 
@@ -154,6 +234,8 @@ Date: December 8, 2013
 
 					$returnString .= "</table>";
 					
+					$returnString .= "Date Generated: DATE";
+					
 					$result->free();
 				}
 				else// query failed
@@ -191,7 +273,7 @@ Date: December 8, 2013
 					/* add the headings for each column */
 					$returnString .= "<table border='1'>
 									  <tr>
-										<th>FullTime</th>
+										<th colspan='3'>FullTime</th>
 									  </tr>
 									  <tr>
 										<th>Employee Name</th>
@@ -214,6 +296,8 @@ Date: December 8, 2013
 					
 					$returnString .= "</table>";
 					
+					$returnString .= "For Week Ending: WEEK";
+					
 					$result->free();
 				}
 				else// query failed
@@ -221,7 +305,7 @@ Date: December 8, 2013
 					$returnString = "Could not generate the report. Sorry for the inconvenience";
 					$returnString .= "<table border='1'>
 									  <tr>
-										<th>FullTime</th>
+										<th colspan='3'>FullTime</th>
 									  </tr>
 									  <tr>
 										<th>Employee Name</th>
@@ -251,7 +335,7 @@ Date: December 8, 2013
 					/* add the headings for each column */
 					$returnString .= "<table border='1'>
 									  <tr>
-										<th>FullTime</th>
+										<th colspan='4'>FullTime</th>
 									  </tr>
 									  <tr>
 										<th>Employee Name</th>
@@ -275,6 +359,8 @@ Date: December 8, 2013
 					
 					$returnString .= "</table>";
 					
+					$returnString .= "For Week Ending: WEEK";
+					
 					$result->free();
 				}
 				else// query failed
@@ -282,7 +368,7 @@ Date: December 8, 2013
 					$returnString = "Could not generate the report. Sorry for the inconvenience";
 					$returnString .= "<table border='1'>
 									  <tr>
-										<th>FullTime</th>
+										<th colspan='4'>FullTime</th>
 									  </tr>
 									  <tr>
 										<th>Employee Name</th>
@@ -313,7 +399,7 @@ Date: December 8, 2013
 					/* add the headings for each column */
 					$returnString .= "<table border='1'>
 									  <tr>
-										<th>FullTime</th>
+										<th colspan='3'>FullTime</th>
 									  </tr>
 									  <tr>
 										<th>Employee Name</th>
@@ -336,6 +422,8 @@ Date: December 8, 2013
 					
 					$returnString .= "</table>";
 					
+					$returnString .= "Date Generated: DATE";
+					
 					$result->free();
 				}
 				else// query failed
@@ -343,7 +431,7 @@ Date: December 8, 2013
 					$returnString = "Could not generate the report. Sorry for the inconvenience";
 					$returnString .= "<table border='1'>
 									  <tr>
-										<th>FullTime</th>
+										<th colspan='3'>FullTime</th>
 									  </tr>
 									  <tr>
 										<th>Employee Name</th>
@@ -393,7 +481,9 @@ Date: December 8, 2013
 													
 					}		
 
-					$returnString .= "</table>";					
+					$returnString .= "</table>";	
+					
+					$returnString .= "Date Generated: DATE";				
 					
 					$result->free();
 				}
