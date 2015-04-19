@@ -22,6 +22,11 @@ Date: December 8, 2013
 		<?php
 			// Start the session
 			session_start();
+			$serverName = $_SESSION['serverName'];
+			$userName = $_SESSION['userName'];
+			$password = $_SESSION['password'];
+			$databaseName = $_SESSION['databaseName'];	
+			$userType = $_SESSION['userType'];
 		?>
 		
 		<script>

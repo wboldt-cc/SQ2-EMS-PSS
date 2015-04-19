@@ -22,6 +22,11 @@ Date: December 8, 2013
 		<?php
 			// Start the session
 			session_start();
+			$serverName = $_SESSION['serverName'];
+			$userName = $_SESSION['userName'];
+			$password = $_SESSION['password'];
+			$databaseName = $_SESSION['databaseName'];	
+			$userType = $_SESSION['userType'];
 		?>
 
 	</head>
@@ -53,9 +58,7 @@ Date: December 8, 2013
 
 		<div class="content"> </br>
 			<h2>System Administration</h2>
-
-			Blah blah?
-
+			
 		</div>
 
 		<div class="margin">
