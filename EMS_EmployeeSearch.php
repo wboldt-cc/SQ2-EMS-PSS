@@ -353,11 +353,7 @@ Date: April 17, 2015
 						
 				return $returnString;
 			}
-<<<<<<< HEAD
-					
-		
-=======
->>>>>>> origin/master
+
 		?>
 		
 		
