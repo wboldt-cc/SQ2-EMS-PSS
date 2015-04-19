@@ -80,6 +80,27 @@ Date: December 8, 2013
 			echo "		</select>
 						<input type='submit' value='Generate Report'><br><hr>										
 				  </form>";
+				  
+			$companyName = "test company";
+			$link = mysqli_connect($serverName, $userName, $password, $databaseName);// connect to the database
+								
+				if(!$link)
+				{
+					//if the database connection failed send error message
+					 echo "<br>Error: Could not connect to the database.";
+				}
+				else// we have a connection
+				{
+					$stringToEcho = generate_sReport($link, $companyName);
+					$stringToEcho .= generate_whwReport($link, $companyName);
+					$stringToEcho .= generate_pReport($link, $companyName);
+					$stringToEcho .= generate_aeReport($link, $companyName);
+					$stringToEcho .= generate_ieReport($link, $companyName);
+			
+					echo "$stringToEcho";
+				}
+				
+				
 			?>
 
 		</div>
@@ -111,12 +132,11 @@ Date: December 8, 2013
 					/* add the headings for each column */
 					$returnString .= "<table border='1'>
 									  <tr>
-										<th></th>
-										<th></th>
-										<th></th>
-										<th></th>
-										<th></th>
-										<th></th>
+										<th>Employee Name</th>
+										<th>SIN</th>
+										<th>Type</th>
+										<th>Date Of Hire</th>
+										<th>Years of Service</th>
 									  </tr>";
 					
 					while($row = $result->fetch_assoc())
@@ -130,13 +150,25 @@ Date: December 8, 2013
 											<td>" . $row[""] . "</td>
 										  </tr>";
 													
-					}				
+					}		
+
+					$returnString .= "</table>";
 					
 					$result->free();
 				}
 				else// query failed
 				{
 					$returnString = "Could not generate the report. Sorry for the inconvenience";
+					
+					$returnString .= "<table border='1'>
+									  <tr>
+										<th>Employee Name</th>
+										<th>SIN</th>
+										<th>Type</th>
+										<th>Date Of Hire</th>
+										<th>Years of Service</th>
+									  </tr>";
+									  $returnString .= "</table>";
 				}
 				
 				return $returnString;
@@ -151,20 +183,20 @@ Date: December 8, 2013
 			 */
 			function generate_whwReport($link, $companyName)
 			{
-				$returnString = "";
-				$queryString = "";
+				$returnString = "Weekly Hours Worked Report ($companyName)<br>";
+				$queryString = "SELECT * FROM whwReport WHERE companyName=$companyName;";
 				
 				if($result = $link->query($queryString))
 				{
 					/* add the headings for each column */
 					$returnString .= "<table border='1'>
 									  <tr>
-										<th></th>
-										<th></th>
-										<th></th>
-										<th></th>
-										<th></th>
-										<th></th>
+										<th>FullTime</th>
+									  </tr>
+									  <tr>
+										<th>Employee Name</th>
+										<th>SIN</th>
+										<th>Hours</th>
 									  </tr>";
 					
 					while($row = $result->fetch_assoc())
@@ -180,11 +212,23 @@ Date: December 8, 2013
 													
 					}				
 					
+					$returnString .= "</table>";
+					
 					$result->free();
 				}
 				else// query failed
 				{
 					$returnString = "Could not generate the report. Sorry for the inconvenience";
+					$returnString .= "<table border='1'>
+									  <tr>
+										<th>FullTime</th>
+									  </tr>
+									  <tr>
+										<th>Employee Name</th>
+										<th>SIN</th>
+										<th>Hours</th>
+									  </tr>";
+									  $returnString .= "</table>";
 				}
 				
 				return $returnString;
@@ -199,20 +243,21 @@ Date: December 8, 2013
 			 */
 			function generate_pReport($link, $companyName)
 			{
-				$returnString = "";
-				$queryString = "";
+				$returnString = "Payroll Report ($companyName)<br>";
+				$queryString = "SELECT * FROM pReport WHERE companyName=$companyName;";
 				
 				if($result = $link->query($queryString))
 				{
 					/* add the headings for each column */
 					$returnString .= "<table border='1'>
 									  <tr>
-										<th></th>
-										<th></th>
-										<th></th>
-										<th></th>
-										<th></th>
-										<th></th>
+										<th>FullTime</th>
+									  </tr>
+									  <tr>
+										<th>Employee Name</th>
+										<th>Hours</th>
+										<th>Gross</th>
+										<th>Notes</th>
 									  </tr>";
 					
 					while($row = $result->fetch_assoc())
@@ -226,13 +271,26 @@ Date: December 8, 2013
 											<td>" . $row[""] . "</td>
 										  </tr>";
 													
-					}				
+					}	
+					
+					$returnString .= "</table>";
 					
 					$result->free();
 				}
 				else// query failed
 				{
 					$returnString = "Could not generate the report. Sorry for the inconvenience";
+					$returnString .= "<table border='1'>
+									  <tr>
+										<th>FullTime</th>
+									  </tr>
+									  <tr>
+										<th>Employee Name</th>
+										<th>Hours</th>
+										<th>Gross</th>
+										<th>Notes</th>
+									  </tr>";
+									  $returnString .= "</table>";
 				}
 				
 				return $returnString;
@@ -247,20 +305,20 @@ Date: December 8, 2013
 			 */
 			function generate_aeReport($link, $companyName)
 			{
-				$returnString = "";
-				$queryString = "";
+				$returnString = "Active Employment Report ($companyName)<br>";
+				$queryString = "SELECT * FROM aeReport WHERE companyName=$companyName;";
 				
 				if($result = $link->query($queryString))
 				{
 					/* add the headings for each column */
 					$returnString .= "<table border='1'>
 									  <tr>
-										<th></th>
-										<th></th>
-										<th></th>
-										<th></th>
-										<th></th>
-										<th></th>
+										<th>FullTime</th>
+									  </tr>
+									  <tr>
+										<th>Employee Name</th>
+										<th>Date Of Hire</th>
+										<th>Avg. Hours</th>
 									  </tr>";
 					
 					while($row = $result->fetch_assoc())
@@ -276,11 +334,23 @@ Date: December 8, 2013
 													
 					}				
 					
+					$returnString .= "</table>";
+					
 					$result->free();
 				}
 				else// query failed
 				{
 					$returnString = "Could not generate the report. Sorry for the inconvenience";
+					$returnString .= "<table border='1'>
+									  <tr>
+										<th>FullTime</th>
+									  </tr>
+									  <tr>
+										<th>Employee Name</th>
+										<th>Date Of Hire</th>
+										<th>Avg. Hours</th>
+									  </tr>";
+					$returnString .= "</table>";
 				}
 				
 				return $returnString;
@@ -295,20 +365,19 @@ Date: December 8, 2013
 			 */
 			function generate_ieReport($link, $companyName)
 			{
-				$returnString = "";
-				$queryString = "";
+				$returnString = "Inactive Employment Report ($companyName)<br>";
+				$queryString = "SELECT * FROM sReport WHERE companyName=$companyName;";
 				
 				if($result = $link->query($queryString))
 				{
 					/* add the headings for each column */
 					$returnString .= "<table border='1'>
 									  <tr>
-										<th></th>
-										<th></th>
-										<th></th>
-										<th></th>
-										<th></th>
-										<th></th>
+										<th>Employee Name</th>
+										<th>Hired</th>
+										<th>Terminated</th>
+										<th>Type</th>
+										<th>Reason For Leaving</th>
 									  </tr>";
 					
 					while($row = $result->fetch_assoc())
@@ -322,18 +391,29 @@ Date: December 8, 2013
 											<td>" . $row[""] . "</td>
 										  </tr>";
 													
-					}				
+					}		
+
+					$returnString .= "</table>";					
 					
 					$result->free();
 				}
 				else// query failed
 				{
 					$returnString = "Could not generate the report. Sorry for the inconvenience";
+					$returnString .= "<table border='1'>
+									  <tr>
+										<th>Employee Name</th>
+										<th>Hired</th>
+										<th>Terminated</th>
+										<th>Type</th>
+										<th>Reason For Leaving</th>
+									  </tr>";
+					$returnString .= "</table>";
 				}
 				
 				return $returnString;
 			}
-			
+		?>	
 
 	</body>
 
