@@ -1,4 +1,5 @@
-USE EMS
+USE EMS;
+
 INSERT INTO access_level (accessDescription) VALUES ('admin');
 INSERT INTO access_level (accessDescription) VALUES ('general');
 

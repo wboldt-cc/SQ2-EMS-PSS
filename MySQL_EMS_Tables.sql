@@ -3,7 +3,7 @@ USE EMS;
 
 CREATE TABLE access_level
 (
-	accessLevel int,
+	accessLevel int AUTO_INCREMENT,
 	accessDescription varchar(200),
     PRIMARY KEY (accessLevel)
 );
@@ -23,7 +23,7 @@ CREATE TABLE Users
 
 CREATE TABLE Company
 (
-	companyID int,
+	companyID int AUTO_INCREMENT,
 	companyName varchar(50),
     PRIMARY KEY (companyID)
 );
@@ -35,8 +35,16 @@ CREATE TABLE Person
 	p_lastName varchar(15),
 	si_number varchar(9) NOT NULL UNIQUE,
 	date_of_birth date,
-	p_id int,
+	p_id int AUTO_INCREMENT,
     PRIMARY KEY (p_id)
+);
+
+
+CREATE TABLE Employee_Status
+(
+	status_id int AUTO_INCREMENT,
+    status_type varchar(50),
+    PRIMARY KEY (status_id)
 );
 
 
@@ -54,10 +62,13 @@ CREATE TABLE Fulltime_Employee
 	ft_company_id int,
 	ft_date_of_hire date,
 	ft_date_of_termination date,
+    reason_for_termination varchar(50),
 	salary float,
+    current_status int,
 	PRIMARY KEY (ft_employee_id, ft_company_id),
     FOREIGN KEY (ft_employee_id) REFERENCES Employee(emp_id),
-    FOREIGN KEY (ft_company_id) REFERENCES Company(companyID)
+    FOREIGN KEY (ft_company_id) REFERENCES Company(companyID),
+	FOREIGN KEY (current_status) REFERENCES Employee_Status(status_id)
 );
 
 
@@ -67,10 +78,13 @@ CREATE TABLE Parttime_Employee
 	pt_company_id int,
 	pt_date_of_hire date,
 	pt_date_of_termination date,
+    reason_for_termination varchar(50),
 	hourlyRate float,
+    current_status int,
 	PRIMARY KEY (pt_employee_id, pt_company_id),
     FOREIGN KEY (pt_employee_id) REFERENCES Employee(emp_id),
-    FOREIGN KEY (pt_company_id) REFERENCES Company(companyID)
+    FOREIGN KEY (pt_company_id) REFERENCES Company(companyID),
+	FOREIGN KEY (current_status) REFERENCES Employee_Status(status_id)
 );
 
 
@@ -81,9 +95,12 @@ CREATE TABLE Contract_Employee
 	contract_start_date date,
 	contract_stop_date date,
 	fixedContractAmount float,
+    reason_for_termination varchar(50),
+    current_status int,
 	PRIMARY KEY (ct_employee_id, ct_company_id),
     FOREIGN KEY (ct_employee_id) REFERENCES Employee(emp_id),
-    FOREIGN KEY (ct_company_id) REFERENCES Employee(emp_id)
+    FOREIGN KEY (ct_company_id) REFERENCES Employee(emp_id),
+	FOREIGN KEY (current_status) REFERENCES Employee_Status(status_id)
 );
 
 
@@ -94,9 +111,12 @@ CREATE TABLE Seasonal_Employee
 	season varchar(7),
 	season_year int,
 	piece_pay float,
+    reason_for_termination varchar(50),
+    current_status int,
 	PRIMARY KEY (sn_employee_id, sn_company_id),
     FOREIGN KEY (sn_employee_id) REFERENCES Employee(emp_id),
-    FOREIGN KEY (sn_company_id) REFERENCES Company(companyID)
+    FOREIGN KEY (sn_company_id) REFERENCES Company(companyID),
+	FOREIGN KEY (current_status) REFERENCES Employee_Status(status_id)
 );
 
 
@@ -124,4 +144,4 @@ CREATE TABLE Audits
 	new_value varchar(50),
     PRIMARY KEY (audit_id),
     FOREIGN KEY (au_employee_id) REFERENCES Employee(emp_id)
-)
+);
