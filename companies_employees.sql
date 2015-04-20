@@ -53,7 +53,7 @@ ON Employee.emp_id = parttime_employee.pt_employee_id;
 CREATE VIEW PT_Display AS
 SELECT p_firstname as 'First_Name', p_lastName as 'Last_Name', si_number as 'SIN', date_of_birth as 'Date_of_Birth', 
 	   pt_date_of_hire as 'Date_of_hire', pt_date_of_termination as 'Date_of_termination', reason_for_termination as 'Reason_for_termination',
-       hourlyRate as 'Hourly rate', companyName as 'Company', status_type as 'Status'
+       hourlyRate as 'Hourly_rate', companyName as 'Company', status_type as 'Status'
 FROM PT_View
 JOIN Company
 ON pt_company_id = companyID
@@ -71,7 +71,7 @@ ON Employee.emp_id = contract_employee.ct_employee_id;
 
 CREATE VIEW CT_Dispaly AS
 SELECT p_lastName as 'Contract_company_name', si_number as 'Business_Number', date_of_birth as 'Date_of_incorportation', 
-	   contract_start_date as 'Contract start date', contract_stop_date as 'Contract_end_date', reason_for_termination as 'Reason_for_termination',
+	   contract_start_date as 'Contract_start_date', contract_stop_date as 'Contract_end_date', reason_for_termination as 'Reason_for_termination',
        fixedContractAmount as 'Contract_amount', companyName as 'Company', status_type as 'Status'
 FROM CT_View
 JOIN Company
