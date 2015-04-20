@@ -27,6 +27,34 @@ Date: December 8, 2013
 			$password = $_SESSION['password'];
 			$databaseName = $_SESSION['databaseName'];	
 			$userType = $_SESSION['userType'];
+			$SIN = "";
+			$Company = "";
+			$EmployeeType = "";
+			
+			/* check if the search employee page sent us the information we need to display an employee */
+			if((!empty($_SESSION['SINfromSearch'])) && ($_SESSION['SINfromSearch'] != "") &&
+			(!empty($_SESSION['CompanyFromSearch'])) && ($_SESSION['CompanyFromSearch'] != "") &&
+			(!empty($_SESSION['EmployeeTypeFromSearch'])) && ($_SESSION['EmployeeTypeFromSearch']!= ""))
+			{
+				$SIN = $_SESSION['SINfromSearch'];
+				$_SESSION['SINfromSearch'] = "";// reset the session variable
+				
+				$Company = $_SESSION['CompanyFromSearch'];
+				$_SESSION['CompanyFromSearch'] = "";// reset the session variable
+				
+				$EmployeeType = $_SESSION['EmployeeTypeFromSearch'];
+				$_SESSION['EmployeeTypeFromSearch'] = "";// reset the session variable
+			
+//echo "$SIN $Company $EmployeeType";
+			}
+			else
+			{
+				$SIN = "";
+				$Company = "";
+				$EmployeeType = "";
+				
+			}
+
 		?>
 		
 		<script>
@@ -223,6 +251,9 @@ Date: December 8, 2013
 				<option value='contractEmployee'>Contract Employee</option>
 			</select>
 			</br></br>
+
+			
+			
 			<span id='employeeFeilds'></span>
 
 		</div>

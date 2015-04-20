@@ -90,6 +90,9 @@ Date: April 17, 2015
 					
 					$_SESSION['SINfromSearch'] = $_POST['hiddenSIN'];
 					$_SESSION['CompanyFromSearch'] = $_POST['hiddenCompany'];
+					$_SESSION['EmployeeTypeFromSearch'] = $_POST['hiddenEmployeeType'];
+					
+					header('Location: ./EMS_EmployeeMaintenance.php');
 					// go to modify employee page 
 				}
 			}
@@ -190,7 +193,8 @@ Date: April 17, 2015
 						
 						echo $employeeInfo . "<br><hr><br><input type='submit' name='editBtn' value='Edit'>";
 						echo "<input type='hidden' name='hiddenSIN' value=\"$SINofEmployee\">
-						      <input type='hidden' name='hiddenCompany' value=\"$Company\">";
+						      <input type='hidden' name='hiddenCompany' value=\"$Company\">
+						      <input type='hidden' name='hiddenEmployeeType' value=\"$employeeType\">";
 						
 					}														
 					
