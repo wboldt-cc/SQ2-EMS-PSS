@@ -129,7 +129,7 @@ Date: December 8, 2013
 				echo "<br><br> &nbsp&nbsp&nbsp&nbsp User ID: ";
 				echo "<input type='text' name='userIdToAdd'> ";
 				echo " &nbsp&nbsp&nbsp&nbsp Password: ";
-				echo "<input type='text' name='userPasswordToAdd'> ";
+				echo "<input type='password' name='userPasswordToAdd'> ";
 				echo "<br><br>Select the security level: <select name='securityLevelDropDown'>
 								<option value='2'>General</option>
 								<option value='1'>Administrator</option>
@@ -167,7 +167,7 @@ Date: December 8, 2013
 						else// we have a connection
 						{
 						
-							$returnedString = addUser($userIdToAdd, $userPasswordToAdd, $userFirstNameToAdd, $userLastNameToAdd, $securityLevel, $link);
+							$returnedString = addUser($userIdToAdd, $userPasswordToAdd, $userFirstNameToAdd, $userLastNameToAdd, $securityLevel, $link, $databaseName, $serverName);
 						
 							echo "<br>$returnedString";
 							
@@ -243,18 +243,51 @@ Date: December 8, 2013
 			 * Parameters: 
 			 * Return: 
 			 */
-			function addUser($userIdToAdd, $userPasswordToAdd, $userFirstNameToAdd, $userLastNameToAdd, $securityLevel, $link)
+			function addUser($userIdToAdd, $userPasswordToAdd, $userFirstNameToAdd, $userLastNameToAdd, $securityLevel, $link, $databaseName, $serverName)
 			{
 				$returnString = "";				
-				$queryString = "INSERT INTO Users VALUES(\"$userIdToAdd\", \"$userPasswordToAdd\", \"$userFirstNameToAdd\", \"$userLastNameToAdd\", $securityLevel);";							
+				$queryString = "INSERT INTO Users ";
+				
+				if(($userFirstNameToAdd == "") || ($userLastNameToAdd == ""))
+				{
+					if($userFirstNameToAdd == "")
+					{
+						if($userLastNameToAdd == "")// if true both are blank
+						{
+							$queryString .= "(userID, userPassword, securityLevel) VALUES(\"$userIdToAdd\", \"$userPasswordToAdd\", $securityLevel);";
+						}
+						else// only first name is blank
+						{
+							$queryString .= "(userID, userPassword, u_lastName, securityLevel) VALUES(\"$userIdToAdd\", \"$userPasswordToAdd\", \"$userLastNameToAdd\", $securityLevel);";
+						}
+					
+					}
+					else// only last name is blank
+					{
+						$queryString .= "(userID, userPassword, u_firstName, securityLevel) VALUES(\"$userIdToAdd\", \"$userPasswordToAdd\", \"$userFirstNameToAdd\", $securityLevel);";
+					}
+					
+				}
+				else// all fields have values
+				{
+					$queryString .=	"VALUES(\"$userIdToAdd\", \"$userPasswordToAdd\", \"$userFirstNameToAdd\", \"$userLastNameToAdd\", $securityLevel);";							
+
+				}
+				
+				$queryString .=	"CREATE USER \"$userIdToAdd\"@'localhost' IDENTIFIED BY \"$userPasswordToAdd\";";
+				
+				$queryString .=	"GRANT ALL ON $databaseName.* TO \"$userIdToAdd\"@'localhost';FLUSH PRIVILEGES;";
+				
 				
 				if($result = $link->query($queryString))// make sure query was successful
 				{		
-					$returnString .= "The user: '$userIdToAdd' was successfully added to the database.";					
+					$returnString .= "The user: '$userIdToAdd' was successfully added to the database.";
+
+					
 				}
 				else// query failed
 				{
-					$returnString = "There was an error attempting to enter the company into the database.";
+					$returnString = "There was an error attempting to enter the user into the database.";
 //$returnString = $queryString;
 				}	
 			
