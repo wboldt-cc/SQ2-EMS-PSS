@@ -31,8 +31,8 @@ JOIN fulltime_employee
 ON Employee.emp_id = fulltime_employee.ft_employee_id;
 
 CREATE VIEW FT_Display AS
-SELECT p_firstname as 'First Name', p_lastName as 'Last Name', si_number as 'SIN', date_of_birth as 'Date of Birth', 
-	   ft_date_of_hire as 'Date of hire', ft_date_of_termination as 'Date of termination', reason_for_termination as 'Reason for termination',
+SELECT p_firstname as 'First_Name', p_lastName as 'Last_Name', si_number as 'SIN', date_of_birth as 'Date_of_Birth', 
+	   ft_date_of_hire as 'Date_of_hire', ft_date_of_termination as 'Date_of_termination', reason_for_termination as 'Reason_for_termination',
        salary as 'Salary', companyName as 'Company', status_type as 'Status'
 FROM FT_View
 JOIN Company
@@ -51,8 +51,8 @@ JOIN parttime_employee
 ON Employee.emp_id = parttime_employee.pt_employee_id;
 
 CREATE VIEW PT_Display AS
-SELECT p_firstname as 'First name', p_lastName as 'Last name', si_number as 'SIN', date_of_birth as 'Date of Birth', 
-	   pt_date_of_hire as 'Date of hire', pt_date_of_termination as 'Date of termination', reason_for_termination as 'Reason for termination',
+SELECT p_firstname as 'First_Name', p_lastName as 'Last_Name', si_number as 'SIN', date_of_birth as 'Date_of_Birth', 
+	   pt_date_of_hire as 'Date_of_hire', pt_date_of_termination as 'Date_of_termination', reason_for_termination as 'Reason_for_termination',
        hourlyRate as 'Hourly rate', companyName as 'Company', status_type as 'Status'
 FROM PT_View
 JOIN Company
@@ -70,9 +70,9 @@ JOIN contract_employee
 ON Employee.emp_id = contract_employee.ct_employee_id;
 
 CREATE VIEW CT_Dispaly AS
-SELECT p_lastName as 'Contract company name', si_number as 'Business Number', date_of_birth as 'Date of incorportation', 
-	   contract_start_date as 'Contract start date', contract_stop_date as 'Contract end date', reason_for_termination as 'Reason for termination',
-       fixedContractAmount as 'Contract amount', companyName as 'Company', status_type as 'Status'
+SELECT p_lastName as 'Contract_company_name', si_number as 'Business_Number', date_of_birth as 'Date_of_incorportation', 
+	   contract_start_date as 'Contract start date', contract_stop_date as 'Contract_end_date', reason_for_termination as 'Reason_for_termination',
+       fixedContractAmount as 'Contract_amount', companyName as 'Company', status_type as 'Status'
 FROM CT_View
 JOIN Company
 ON ct_company_id = companyID
@@ -89,9 +89,9 @@ JOIN seasonal_employee
 ON Employee.emp_id = seasonal_employee.sn_employee_id;
 
 CREATE VIEW SN_Display AS
-SELECT p_firstname as 'First name', p_lastName as 'Last name', si_number as 'SIN', date_of_birth as 'Date of Birth', 
-	   season as 'Season', season_year as 'Year', reason_for_termination as 'Reason for termination',
-       piece_pay as 'Piece pay', companyName as 'Company', status_type as 'Status'
+SELECT p_firstname as 'First_Name', p_lastName as 'Last_Name', si_number as 'SIN', date_of_birth as 'Date_of_Birth', 
+	   season as 'Season', season_year as 'Year', reason_for_termination as 'Reason_for_termination',
+       piece_pay as 'Piece_Pay', companyName as 'Company', status_type as 'Status'
 FROM SN_View
 JOIN Company
 ON sn_company_id = companyID
