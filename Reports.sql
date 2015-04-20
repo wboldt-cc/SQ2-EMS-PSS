@@ -55,7 +55,7 @@ WHERE current_status = 1;
 CREATE TABLE FT_Payroll
 (
 	full_name varchar(50),
-    company_id int,
+    company_id varchar(50),
     si_num int,
     worked_hours float,
     hours_mon float,
@@ -71,10 +71,12 @@ CREATE TABLE FT_Payroll
 );
 
 INSERT INTO FT_payroll (full_name, company_id, si_num, hours_mon, hours_tues, hours_wed, hours_thurs, hours_fri, hours_sat, hours_sun, weekly_pay, pay_date)
-SELECT CONCAT(p_lastname, ', ', p_firstname), ft_company_id, si_number, mon_hours, tues_hours, wed_hours, thurs_hours, fri_hours, sat_hours, sun_hours, salary, pay_period_start_date
+SELECT CONCAT(p_lastname, ', ', p_firstname), companyName, si_number, mon_hours, tues_hours, wed_hours, thurs_hours, fri_hours, sat_hours, sun_hours, salary, pay_period_start_date
 FROM FT_View
 JOIN time_cards
-ON (ft_employee_id = tc_employee_id) AND (ft_company_id = tc_company_id);
+ON (ft_employee_id = tc_employee_id) AND (ft_company_id = tc_company_id)
+JOIN Company
+ON ft_company_id = companyID;
 
 UPDATE FT_payroll
 SET weekly_pay = weekly_pay / 52,
@@ -89,7 +91,7 @@ END;
 CREATE TABLE PT_Payroll
 (
 	full_name varchar(50),
-    company_id int,
+    company_id varchar(50),
     si_num int,
     worked_hours float,
     hours_mon float,
@@ -105,10 +107,12 @@ CREATE TABLE PT_Payroll
 );
 
 INSERT INTO PT_payroll (full_name, company_id, si_num, hours_mon, hours_tues, hours_wed, hours_thurs, hours_fri, hours_sat, hours_sun, weekly_pay, pay_date)
-SELECT CONCAT(p_lastname, ', ', p_firstname), pt_company_id, si_number, mon_hours, tues_hours, wed_hours, thurs_hours, fri_hours, sat_hours, sun_hours, hourlyRate, pay_period_start_date
+SELECT CONCAT(p_lastname, ', ', p_firstname), companyName, si_number, mon_hours, tues_hours, wed_hours, thurs_hours, fri_hours, sat_hours, sun_hours, hourlyRate, pay_period_start_date
 FROM PT_View
 JOIN time_cards
-ON (pt_employee_id = tc_employee_id) AND (pt_company_id = tc_company_id);
+ON (pt_employee_id = tc_employee_id) AND (pt_company_id = tc_company_id)
+JOIN Company
+ON pt_company_id = companyID;
 
 UPDATE PT_Payroll
 SET worked_hours = hours_mon + hours_tues + hours_wed + hours_thurs + hours_fri + hours_sat + hours_sun,
@@ -123,7 +127,7 @@ SET worked_hours = hours_mon + hours_tues + hours_wed + hours_thurs + hours_fri 
 CREATE TABLE SN_Payroll
 (
 	full_name varchar(50),
-    company_id int,
+    company_id varchar(50),
     si_num int,
     worked_hours float,
     hours_mon float,
@@ -146,10 +150,12 @@ CREATE TABLE SN_Payroll
 );
 
 INSERT INTO SN_payroll (full_name, company_id, si_num, hours_mon, hours_tues, hours_wed, hours_thurs, hours_fri, hours_sat, hours_sun, pieces_mon, pieces_tues, pieces_wed, pieces_thurs, pieces_fri, pieces_sat, pieces_sun, weekly_pay, pay_date)
-SELECT CONCAT(p_lastname, ', ', p_firstname), sn_company_id, si_number, mon_hours, tues_hours, wed_hours, thurs_hours, fri_hours, sat_hours, sun_hours, piece_pay, pay_period_start_date
+SELECT CONCAT(p_lastname, ', ', p_firstname), companyName, si_number, mon_hours, tues_hours, wed_hours, thurs_hours, fri_hours, sat_hours, sun_hours, piece_pay, pay_period_start_date
 FROM SN_View
 JOIN time_cards
-ON (sn_employee_id = tc_employee_id) AND (sn_company_id = tc_company_id);
+ON (sn_employee_id = tc_employee_id) AND (sn_company_id = tc_company_id)
+JOIN Company
+ON sn_company_id = companyID;
 
 UPDATE SN_Payroll
 SET weekly_pieces = pieces_mon + pieces_tues + pieces_wed + pieces_thurs + pieces_fri + pieces_sat + pieces_sun,
@@ -163,7 +169,7 @@ SET weekly_pieces = pieces_mon + pieces_tues + pieces_wed + pieces_thurs + piece
 CREATE TABLE CT_Payroll
 (
 	full_name varchar(50),
-    company_id int,
+    company_id varchar(50),
     si_num int,
     worked_hours varchar(10),
     weekly_pay float,
@@ -172,11 +178,47 @@ CREATE TABLE CT_Payroll
 );
 
 INSERT INTO CT_payroll (full_name, company_id, si_num, worked_hours, weekly_pay, pay_date)
-SELECT p_lastname, pt_company_id, si_number, '--', fixedContractAmount , pay_period_start_date
+SELECT p_lastname, companyName, si_number, '--', fixedContractAmount , pay_period_start_date
 FROM CT_View
 JOIN time_cards
-ON (ct_employee_id = tc_employee_id) AND (ct_company_id = tc_company_id);
+ON (ct_employee_id = tc_employee_id) AND (ct_company_id = tc_company_id)
+JOIN Company
+ON ct_company_id = companyID;
 
 UPDATE CT_Payroll
 SET weekly_pay = (weekly_pay * 7 / DATEDIFF(contract_stop_date, contract_start_date)),
 	notes = DATEDIFF(contract_Stop_date, CURDATE()) + ' days remaining';
+    
+    
+    
+/* Hours worked */
+CREATE VIEW FT_hours AS
+SELECT full_name, company_id, si_num, worked_hours
+FROM FT_Payroll;
+
+CREATE VIEW PT_hours AS
+SELECT full_name, company_id, si_num, worked_hours
+FROM PT_Payroll;
+
+CREATE VIEW SN_hours AS
+SELECT full_name, company_id, si_num, worked_hours
+FROM SN_Payroll;
+
+
+CREATE VIEW FT_hours AS
+SELECT CONCAT(p_lastname, ', ', p_firstname) AS 'Name', ft_company_id AS 'Company', si_number AS 'SIN', hours_worked AS 'Hours', pay_period_start_date AS 'Period'
+FROM FT_View
+JOIN Time_Cards
+ON (ft_employee_id = tc_employee_id) AND (ft_company_id = tc_company_id);
+
+CREATE VIEW PT_hours AS
+SELECT CONCAT(p_lastname, ', ', p_firstname) AS 'Name', pt_company_id AS 'Company', si_number AS 'SIN', hours_worked AS 'Hours', pay_period_start_date AS 'Period'
+FROM PT_View
+JOIN Time_Cards
+ON (pt_employee_id = tc_employee_id) AND (pt_company_id = tc_company_id);
+
+CREATE VIEW SN_hours AS
+SELECT CONCAT(p_lastname, ', ', p_firstname) AS 'Name', sn_company_id AS 'Company', si_number AS 'SIN', hours_worked AS 'Hours', pay_period_start_date AS 'Period'
+FROM SN_View
+JOIN Time_Cards
+ON (sn_employee_id = tc_employee_id) AND (sn_company_id = tc_company_id);
