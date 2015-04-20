@@ -119,6 +119,12 @@ CREATE TABLE Seasonal_Employee
 	FOREIGN KEY (current_status) REFERENCES Employee_Status(status_id)
 );
 
+CREATE TABLE Seasons
+(
+	season_type varchar(7) PRIMARY KEY,
+    season_start_date varchar(6)
+);
+
 
 CREATE TABLE Time_Cards
 (
