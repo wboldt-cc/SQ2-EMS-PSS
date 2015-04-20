@@ -26,6 +26,7 @@ Date: April 17, 2015
 			$lastNameToSearchFor = "";
 			$firstNameToSearchFor = "";
 			$SINtoSearchFor = "";
+			$employeeType = "";
 			
 			$queryString = "";
 			
@@ -74,6 +75,18 @@ Date: April 17, 2015
 			
 			<form method='post'>
 			<?php
+			/* the following variables are used to have the employee type the user selected stay selected when they submit the form */
+			$ftEmployeeSelected = "";
+			$ptEmployeeSelected = "";
+			$sEmployeeSelected = "";
+			$cEmployeeSelected = "";
+			
+			if (isset($_POST['editBtn'])) 
+			{
+				//echo "reached code<br>";
+				// go to modify employee page with SIN as parameter (or as a session variable)
+			}
+			
 			if(!empty($_POST['firstName']))
 			{
 				$firstNameToSearchFor = $_POST['firstName'];
@@ -101,6 +114,28 @@ Date: April 17, 2015
 				$SINtoSearchFor = "";
 			}
 			
+			if(!empty($_POST['employeeTypeDropDown']))
+			{
+				$employeeType = $_POST['employeeTypeDropDown'];
+				
+				switch($employeeType)
+				{
+				case "ftEmployee":
+					$ftEmployeeSelected = "selected";
+					break;
+				case "ptEmployee":
+					$ptEmployeeSelected = "selected";
+					break;
+				case "sEmployee":
+					$sEmployeeSelected = "selected";
+					break;
+				case "cEmployee":
+					$cEmployeeSelected = "selected";
+					break;
+				}
+				
+			}
+			
 			
 			echo "
 							First Name: 
@@ -109,9 +144,19 @@ Date: April 17, 2015
 							<input type='text' name='lastName' value='$lastNameToSearchFor'></br></br>
 							Social Insurance Number: 
 							<input type='text' name='SIN' value='$SINtoSearchFor'>
-							</br></br>
+							&nbsp&nbspEmployee Type: 
+							<select name='employeeTypeDropDown'>
+								<option value='ftEmployee' $ftEmployeeSelected>Full Time</option>
+								<option value='ptEmployee' $ptEmployeeSelected>Part Time</option>
+								<option value='sEmployee' $sEmployeeSelected>Seasonal</option>";
+			if($userType == 'administrator')
+			{
+				echo "<option value='cEmployee' $cEmployeeSelected>Contract</option>";
+			}
+										
+			echo "			</select></br></br>
 																			
-							<input type='submit' value='Search'><br><hr>
+							<input type='submit' name='searchBtn' value='Search'><br><hr>
 						";
 			
 			if(($lastNameToSearchFor != "") || ($firstNameToSearchFor != "") || ($SINtoSearchFor != ""))// make sure at least one of the search criteria pieces is not blank
@@ -125,7 +170,7 @@ Date: April 17, 2015
 				}
 				else// we have a connection
 				{
-					$dropdownMenu = constructDropdownMenu($lastNameToSearchFor, $firstNameToSearchFor, $SINtoSearchFor, $link);
+					$dropdownMenu = constructDropdownMenu($lastNameToSearchFor, $firstNameToSearchFor, $SINtoSearchFor, $link, $employeeType);
 					
 					echo "$dropdownMenu";
 							
@@ -134,42 +179,17 @@ Date: April 17, 2015
 						$SINofEmployee = $_POST['employeeToDisplayDropDown'];
 						
 						
-						$employeeInfo = changeDisplayedEmployee($SINofEmployee, $link);
+						$employeeInfo = changeDisplayedEmployee($SINofEmployee, $link, $employeeType);
 						
-						echo $employeeInfo;
-						/*
-						$placeHolder = "";// place holder until we have the data for each field
+						echo $employeeInfo . "<br><hr><br><input type='submit' name='editBtn' value='Edit'>";
 						
-						echo "test     ";
-						echo "$SINofEmployee</br></br>";
-						
-						echo "First Name: $placeHolder </br>
-						      Last Name: $placeHolder </br>
-							  SIN: $SINofEmployee </br>
-							  Date of Birth: $placeHolder </br>
-							  Employed with Company: $placeHolder </br>
-							  Date of Hire: $placeHolder </br>";
-						
-						$userType = $_SESSION['userType'];
-						
-						if($userType == "administrator")
-						{
-							echo "Date of Termination: $placeHolder </br>
-								  Payment Information: $placeHolder </br>";
-						}
-						*/
-						
-					}
-					
-					
-					
+					}														
 					
 					$link->close();
 								
 				}
 			}
-			
-						
+									
 			
 			?>
 						
@@ -193,29 +213,47 @@ Date: April 17, 2015
 			 * Parameters: 
 			 * Return: 
 			 */
-			function constructDropdownMenu($lastNameToSearchFor, $firstNameToSearchFor, $SINtoSearchFor, $link)
+			function constructDropdownMenu($lastNameToSearchFor, $firstNameToSearchFor, $SINtoSearchFor, $link, $employeeType)
 			{
 				$returnString = "";
 				$queryString = "";
-			
+							
+				$userType = $_SESSION['userType'];
 																																
 				//select lastName, firstName, SIN from employees where employeeType != contract & employee is active
-				$queryString = "SELECT p_lastName, p_firstName, si_number FROM Person ";
-
+				//$queryString = "SELECT p_lastName, p_firstName, si_number FROM Person ";
+$queryString = "SELECT Last_Name, First_Name, SIN FROM ";
+				
+				switch($employeeType)
+				{
+				case 'ftEmployee':
+					$queryString .= "FT_Display ";
+					break;
+				case 'ptEmployee':
+					$queryString .= "PT_Display ";
+					break;
+				case 'sEmployee':
+					$queryString .= "SN_Display ";
+					break;
+				case 'cEmployee':
+					$queryString .= "CT_Display ";
+					break;									
+				}
+				
 				if($lastNameToSearchFor != "")
 				{
-					$queryString .= "WHERE p_lastName LIKE '%$lastNameToSearchFor%' ";
+					$queryString .= "WHERE Last_Name LIKE '%$lastNameToSearchFor%' ";
 				}
 				
 				if($firstNameToSearchFor != "")
 				{
 					if($lastNameToSearchFor != "")// check if the last name was not blank
 					{
-						$queryString .= "AND p_firstName LIKE '%$firstNameToSearchFor%' ";
+						$queryString .= "AND First_Name LIKE '%$firstNameToSearchFor%' ";
 					}
 					else// last name was blank
 					{
-						$queryString .= "WHERE p_firstName LIKE '%$firstNameToSearchFor%' ";
+						$queryString .= "WHERE First_Name LIKE '%$firstNameToSearchFor%' ";
 					}
 				}
 				
@@ -223,15 +261,20 @@ Date: April 17, 2015
 				{
 					if(($lastNameToSearchFor != "") || ($firstNameToSearchFor != ""))// check if either of the names were not blank
 					{
-						$queryString .= "AND si_number LIKE '%$SINtoSearchFor%' ";
+						$queryString .= "AND SIN LIKE '%$SINtoSearchFor%' ";
 					}
 					else// both names were blank
 					{
-						$queryString .= "WHERE si_number LIKE '%$SINtoSearchFor%' ";
+						$queryString .= "WHERE SIN LIKE '%$SINtoSearchFor%' ";
 					}
 				}
 				
-				$queryString .= "ORDER BY p_lastName;";
+				if($userType == "general")// general users only have access to active employees
+				{
+					$queryString .= "AND Status='Active' ";
+				}
+				
+				$queryString .= "ORDER BY 'Last Name';";
 				
 				//display lastname firstname and sin of employees found in list form.
 				//User will be able to click on them and display that employees info
@@ -242,28 +285,21 @@ Date: April 17, 2015
 				{
 					while($row = $result->fetch_assoc())
 					{
-						$returnString .= "<option value='" . $row["si_number"] . "'>" . $row["p_lastName"] . ", "
-   						                 . $row["p_firstName"] . ", "
-										 . $row["si_number"] . "</option>";
+						$returnString .= "<option value='" . $row["SIN"] . "'>" . $row["Last_Name"] . ", "
+   						                 . $row["First_Name"] . ", "
+										 . $row["SIN"] . "</option>";
 					}
 					
-					$returnString .= "</select><input type='submit' value='Display'><br>";
+					$returnString .= "</select><input type='submit' name='displayBtn' value='Display'><br>";
 					
 					$result->free();
 				}
 				else// query failed
 				{
 					$returnString = "There was an error while running the SQL script";
-//$returnString = $queryString;
-				}												
-								
-				//$returnString .= "<option value='$SINtoSearchFor'>$lastNameToSearchFor, $firstNameToSearchFor, $SINtoSearchFor</option>
-										//<option value='CompanyName'>Dirt, Joe, 333 333 334</option>
-										//<option value='ContactName'>Contact Name</option>
-									//</select>
+//$returnString .= $queryString;
+				}																			
 									
-									//<input type='submit' value='Display'><br>";
-			
 				return $returnString;
 			}
 			
@@ -273,7 +309,7 @@ Date: April 17, 2015
 			 * Parameters: 
 			 * Return: 
 			 */
-			function changeDisplayedEmployee($SINofEmployee, $link)
+			function changeDisplayedEmployee($SINofEmployee, $link, $employeeType)
 			{
 				$returnString = "";
 				$fisrtName = "";
@@ -281,81 +317,156 @@ Date: April 17, 2015
 				$dateOfBirth = "";
 				$employedWithCompany = "";
 				$dateOfHire = "";
+				$dateOfTermination = "";
+				$reasonForTermination = "";
+				$salary = "";
+				$hourlyRate = "";
+				$status = "";
 				$placeHolder = "";// place holder until we have the data for each field
 				
-				$queryString = "SELECT * FROM Person WHERE si_number='$SINofEmployee';";
-			
-			/* 	THIS IS JUST SOME CODE I GRABBED FROM A PREVIOUS ASSIGNMENT. IT DOES NOT WORK */
-				if($result = $link->query($queryString))
-				{
-				/*
-					echo "<table border='1'>";
-					echo "<tr>";
-					echo "<th>CustomerID</th>";
-					echo "<th>CompanyName</th>";
-					echo "<th>ContactName</th>";
-					echo "<th>ContactTitle</th>";
-					echo "<th>Address</th>";
-					echo "<th>City</th>";
-					echo "<th>Region</th>";
-					echo "<th>PostalCode</th>";
-					echo "<th>Country</th>";
-					echo "<th>Phone</th>";
-					echo "<th>Fax</th>";
-					echo "</tr>";
-					*/
-					
-					while($row = $result->fetch_assoc())
-					{
-						$returnString .= "First Name: " . $row['p_firstName'] . "</br>
-								  Last Name: " . $row['p_lastName'] . "</br>
-								  SIN: $SINofEmployee </br>
-								  Date of Birth: $placeHolder </br>
-								  Employed with Company: $placeHolder </br>
-								  Date of Hire: $placeHolder </br>";
-							
-						$userType = $_SESSION['userType'];
-						
-						if($userType == "administrator")
-						{
-							$returnString .= "Date of Termination: $placeHolder </br>
-								  Payment Information: $placeHolder </br>";
-								
-						}	
-					}
-					
-						/*echo "<tr>";
-						echo "<td>" . $row["CustomerID"] . "</td>";
-						echo "<td>" . $row["CompanyName"] . "</td>";
-						echo "<td>" . $row["ContactName"] . "</td>";
-						echo "<td>" . $row["ContactTitle"] . "</td>";
-						echo "<td>" . $row["Address"] . "</td>";
-						echo "<td>" . $row["City"] . "</td>";
-						echo "<td>" . $row["Region"] . "</td>";
-						echo "<td>" . $row["PostalCode"] . "</td>";
-						echo "<td>" . $row["Country"] . "</td>";
-						echo "<td>" . $row["Phone"] . "</td>";
-						echo "<td>" . $row["Fax"] . "</td>";
-						echo "</tr>";	
-*/
+				$userType = $_SESSION['userType'];
+											
+				$queryString = "SELECT * FROM ";
 
-										
-					
-					
-					$result->free();
-				}
-				else// query failed
+				if($employeeType != 'cEmployee')
 				{
-					$returnString = "Could not display the Employees Information. Sorry for the inconvenience";
-				}																
+					switch($employeeType)
+					{
+					case 'ftEmployee':
+						$queryString .= "FT_Display ";
+						break;
+					case 'ptEmployee':
+						$queryString .= "PT_Display ";
+						break;
+					case 'sEmployee':
+						$queryString .= "SN_Display ";
+						break;								
+					}
+
+					$queryString .= "WHERE SIN='$SINofEmployee';";
+				
+				
+					if($result = $link->query($queryString))
+					{
+					/*
+						echo "<table border='1'>";
+						echo "<tr>";
+						echo "<th>CustomerID</th>";
+						echo "<th>CompanyName</th>";
+						echo "<th>ContactName</th>";
+						echo "<th>ContactTitle</th>";
+						echo "<th>Address</th>";
+						echo "<th>City</th>";
+						echo "<th>Region</th>";
+						echo "<th>PostalCode</th>";
+						echo "<th>Country</th>";
+						echo "<th>Phone</th>";
+						echo "<th>Fax</th>";
+						echo "</tr>";
 						
 						
+				$season = "";
+				$year = "";
+						*/
 						
+						while($row = $result->fetch_assoc())
+						{
+							$returnString .= "First Name: " . $row['First_Name'] . "</br>
+									  Last Name: " . $row['Last_Name'] . "</br>
+									  SIN: " . $row['SIN'] . "</br>
+									  Date of Birth: " . $row['Date_of_Birth'] . " </br>
+									  Employed with Company: " . $row['Company'] . " </br>";
+							switch($employeeType)
+							{
+							case 'ftEmployee':
+							case 'ptEmployee':
+								$returnString .= "Date of Hire: " . $row['Date_of_hire'] . " </br>";
+								break;
+							case 'sEmployee':
+								$returnString .= "Season: " . $row['Season'] . " </br>
+								                  Year: " . $row['Year'] . " </br>";
+								break;								
+							}
+									  								
+							
+							if($userType == "administrator")
+							{
+								$returnString .= "Date of Termination: " . $row['Date_of_termination'] . " </br>
+									  Reason For Termination: " . $row['Reason_for_termination'] . " </br>";
+									  
+								switch($employeeType)
+								{
+								case 'ftEmployee':
+									$returnString .= "Salary: " . $row['Salary'] . " </br>";
+									break;
+								case 'ptEmployee':
+									$returnString .= "Hourly Rate: " . $row['Hourly_rate'] . " </br>";
+									break;
+								case 'sEmployee':
+									$returnString .= "Piece Pay: " . $row['Piece_Pay'] . " </br>";
+									break;								
+								}
+									  
+								$returnString .= "Status: " . $row['Status'] . " </br>";
+									
+							}	
+						}
+																	
+						
+						$result->free();
+					}
+					else// query failed
+					{
+						$returnString = "Could not display the Employees Information. Sorry for the inconvenience";
+					}																
+							
+				
+				}
+				else// it's a contract employee
+				{
+					$queryString .= "CT_Display WHERE Business_Number='$SINofEmployee';";
+					
+					if($userType != "administrator")
+					{
+						$returnString = "<br>You do not have access to Contract Employees.<br>";
+					}
+					else
+					{
+								
+						if($result = $link->query($queryString))
+						{
+							
+							while($row = $result->fetch_assoc())
+							{
+								$returnString .= "Company Name: " . $row['Contract_company_name'] . "</br>
+										  Business Number: " . $row['Business_Number'] . "</br>
+										  Date of Incorporation: " . $row['Date_of_incorportation'] . " </br>
+										  Contract Start Date: " . $row['Contract_start_date'] . " </br>
+										  Contract End Date: " . $row['Contract_end_date'] . " </br>
+										  Reason For Termination: " . $row['Reason_for_termination'] . " </br>
+										  Contract Amount: " . $row['Contract_amount'] . " </br>
+										  Company: " . $row['Company'] . " </br>
+										  Status: " . $row['Status'] . " </br>";
+										
+									
+							}
+																		
+							
+							$result->free();
+						}
+						else// query failed
+						{
+							$returnString = "Could not display the Employees Information. Sorry for the inconvenience";
+						}
+						
+					}
+				
+				}
+							
 				return $returnString;
 			}
 
-		?>
-		
+		?>				
 		
 		
 		</form>

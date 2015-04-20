@@ -163,7 +163,7 @@ Date: December 8, 2013
 					What is the name of the company to display: &nbsp&nbsp&nbsp&nbsp&nbsp
 					<input type='text' name='companyName' value='$companyName'><br>
 					Which type of report would you like to display? 
-						<select name='reportToGenerateDropDown' value='$typeOfReport'>
+						<select name='reportToGenerateDropDown'>
 										<option value=''></option>
 										<option value='sReport' $sReportSelected>Seniority</option>
 										<option value='whwReport' $whwReportSelected>Weekly Hours Worked</option>";
