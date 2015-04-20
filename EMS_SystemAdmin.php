@@ -64,46 +64,128 @@ Date: December 8, 2013
 			
 			<?php
 			if($userType == 'administrator')
-			{						
-				echo "Enter the name of the company to add: ";
+			{
+				//echo "What would you like to do: ";
+				
+				/* Display Add company UI */				
+				echo "<hr><h3>Add Company</h3>";
+				echo "Enter the name of the Company to add: ";
 				echo "<input type='text' name='companyToAdd'> ";
-				echo "&nbsp&nbsp<input type='submit' value='Add'><br><hr>";
+				echo "&nbsp&nbsp<input type='submit' name='addCompanyBtn' value='Add'><br>";
 				
-				
-				if(!empty($_POST['companyToAdd']))
+				if(isset($_POST['addCompanyBtn']))
 				{
-					$companyToAdd = $_POST['companyToAdd'];
-					
-					if($companyToAdd != "")
+				
+					if(!empty($_POST['companyToAdd']))
 					{
-						if(strlen($companyToAdd) >= 50)// make sure the company name isn't too long
-						{
-							echo "The company name you entered was too long. We accept up to 50 characters. Please enter a shorter company name.";
-						}
-						else// company length is proper length
-						{
+						$companyToAdd = $_POST['companyToAdd'];
 						
-							$link = mysqli_connect($serverName, $userName, $password, $databaseName);// connect to the database
-										
-							if(!$link)
+						if($companyToAdd != "")
+						{
+							if(strlen($companyToAdd) >= 50)// make sure the company name isn't too long
 							{
-								//if the database connection failed send error message
-								 echo "<br>Error: Could not connect to the database.";
+								echo "The company name you entered was too long. We accept up to 50 characters. Please enter a shorter company name.";
 							}
-							else// we have a connection
+							else// company length is proper length
 							{
 							
-								$returnedString = addCompany($companyToAdd, $link);
-							
-								echo "<br>$returnedString";
+								$link = mysqli_connect($serverName, $userName, $password, $databaseName);// connect to the database
+											
+								if(!$link)
+								{
+									//if the database connection failed send error message
+									 echo "<br>Error: Could not connect to the database.";
+								}
+								else// we have a connection
+								{
 								
+									$returnedString = addCompany($companyToAdd, $link);
+								
+									echo "<br>$returnedString";
+									
+								}
 							}
-						}
+							
+						}// end 'if' statement
 						
-					}// end 'if' statement
+					}
+					else// user tried to add a company without a company name
+					{
+						echo "You must enter a company name to add a company.";
+					}
 					
 				}// end 'if' statement	
 				
+				/* end Display Add company UI */
+				
+				
+				/* Display Add User UI */
+				echo "<hr><h3>Add User</h3>";
+				echo "Enter the following information for the User to add. User ID and Password are required.";
+				echo "<br><br>First Name: ";
+				echo "<input type='text' name='userFirstNameToAdd'> ";
+				echo " &nbsp&nbsp Last Name: ";
+				echo "<input type='text' name='userLastNameToAdd'> ";
+				echo "<br><br> &nbsp&nbsp&nbsp&nbsp User ID: ";
+				echo "<input type='text' name='userIdToAdd'> ";
+				echo " &nbsp&nbsp&nbsp&nbsp Password: ";
+				echo "<input type='text' name='userPasswordToAdd'> ";
+				echo "<br><br>Select the security level: <select name='securityLevelDropDown'>
+								<option value='2'>General</option>
+								<option value='1'>Administrator</option>
+							  </select>";
+				echo "&nbsp&nbsp<input type='submit' name='addUserBtn' value='Add'><br>";
+				
+				if(isset($_POST['addUserBtn']))
+				{
+				
+					if(!empty($_POST['userIdToAdd']) && !empty($_POST['userPasswordToAdd']))
+					{
+						$userIdToAdd = $_POST['userIdToAdd'];
+						$userPasswordToAdd = $_POST['userPasswordToAdd'];
+						$userFirstNameToAdd = "";
+						$userLastNameToAdd = "";
+						$securityLevel = $_POST['securityLevelDropDown'];
+						
+						if(!empty($_POST['userFirstNameToAdd']))
+						{
+							$userFirstNameToAdd = $_POST['userFirstNameToAdd'];
+						}
+						
+						if(!empty($_POST['userLastNameToAdd']))
+						{
+							$userLastNameToAdd = $_POST['userLastNameToAdd'];
+						}
+						
+						$link = mysqli_connect($serverName, $userName, $password, $databaseName);// connect to the database
+									
+						if(!$link)
+						{
+							//if the database connection failed send error message
+							 echo "<br>Error: Could not connect to the database.";
+						}
+						else// we have a connection
+						{
+						
+							$returnedString = addUser($userIdToAdd, $userPasswordToAdd, $userFirstNameToAdd, $userLastNameToAdd, $securityLevel, $link);
+						
+							echo "<br>$returnedString";
+							
+						}
+							
+							
+						
+					}
+					else// user tried to add a company without a company name
+					{
+						echo "You must enter a User ID and a Password to add a user.";
+					}
+					
+				}// end 'if' statement	
+				
+				/* end Display Add User UI */
+				
+				echo "<hr>";
 				
 			}
 			else// user is not an administrator
@@ -154,7 +236,31 @@ Date: December 8, 2013
 				
 				return $returnString;
 			}
+					
+			/*
+			 * Function: 
+			 * Description: 
+			 * Parameters: 
+			 * Return: 
+			 */
+			function addUser($userIdToAdd, $userPasswordToAdd, $userFirstNameToAdd, $userLastNameToAdd, $securityLevel, $link)
+			{
+				$returnString = "";				
+				$queryString = "INSERT INTO Users VALUES(\"$userIdToAdd\", \"$userPasswordToAdd\", \"$userFirstNameToAdd\", \"$userLastNameToAdd\", $securityLevel);";							
+				
+				if($result = $link->query($queryString))// make sure query was successful
+				{		
+					$returnString .= "The user: '$userIdToAdd' was successfully added to the database.";					
+				}
+				else// query failed
+				{
+					$returnString = "There was an error attempting to enter the company into the database.";
+//$returnString = $queryString;
+				}	
 			
+				return $returnString;
+			}
+
 			
 			
 		?>
