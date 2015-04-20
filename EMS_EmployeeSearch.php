@@ -26,7 +26,7 @@ Date: April 17, 2015
 			$lastNameToSearchFor = "";
 			$firstNameToSearchFor = "";
 			$SINtoSearchFor = "";
-			$employeeType = "";
+			$employeeType = "";// the type of employee to search for (ex Full Time)
 			
 			$queryString = "";
 			
@@ -69,8 +69,7 @@ Date: April 17, 2015
 		</div>
 
 		<div class="content"> </br>
-		
-		
+			
 			<h2>Search Employees</h2><hr>
 			
 			<form method='post'>
@@ -81,10 +80,18 @@ Date: April 17, 2015
 			$sEmployeeSelected = "";
 			$cEmployeeSelected = "";
 			
-			if (isset($_POST['editBtn'])) 
+			if ($_SERVER['REQUEST_METHOD'] == 'POST')
 			{
-				//echo "reached code<br>";
-				// go to modify employee page with SIN as parameter (or as a session variable)
+				if (!isset($_POST['searchBtn']) && !isset($_POST['displayBtn']))// check if the user wants to edit the current employee being displayed
+				{
+					//$tempOne = $_POST['hiddenCompany'];
+					//$tempTwo = $_POST['hiddenSIN'];
+					//echo "reached code<br> $tempOne $tempTwo";
+					
+					$_SESSION['SINfromSearch'] = $_POST['hiddenSIN'];
+					$_SESSION['CompanyFromSearch'] = $_POST['hiddenCompany'];
+					// go to modify employee page 
+				}
 			}
 			
 			if(!empty($_POST['firstName']))
@@ -118,6 +125,7 @@ Date: April 17, 2015
 			{
 				$employeeType = $_POST['employeeTypeDropDown'];
 				
+				/* this switch finds which of the employee types the user selected */
 				switch($employeeType)
 				{
 				case "ftEmployee":
@@ -137,35 +145,33 @@ Date: April 17, 2015
 			}
 			
 			
-			echo "
-							First Name: 
-							<input type='text' name='firstName' value='$firstNameToSearchFor'>
-							&nbsp &nbsp Last Name: 
-							<input type='text' name='lastName' value='$lastNameToSearchFor'></br></br>
-							Social Insurance Number: 
-							<input type='text' name='SIN' value='$SINtoSearchFor'>
-							&nbsp&nbspEmployee Type: 
-							<select name='employeeTypeDropDown'>
-								<option value='ftEmployee' $ftEmployeeSelected>Full Time</option>
-								<option value='ptEmployee' $ptEmployeeSelected>Part Time</option>
-								<option value='sEmployee' $sEmployeeSelected>Seasonal</option>";
-			if($userType == 'administrator')
+			echo "First Name: 
+					<input type='text' name='firstName' value='$firstNameToSearchFor'>
+					&nbsp &nbsp Last Name: 
+					<input type='text' name='lastName' value='$lastNameToSearchFor'></br></br>
+					Social Insurance Number: 
+					<input type='text' name='SIN' value='$SINtoSearchFor'>
+					&nbsp&nbspEmployee Type: 
+					<select name='employeeTypeDropDown'>
+						<option value='ftEmployee' $ftEmployeeSelected>Full Time</option>
+						<option value='ptEmployee' $ptEmployeeSelected>Part Time</option>
+						<option value='sEmployee' $sEmployeeSelected>Seasonal</option>";
+						
+			if($userType == 'administrator')// find out if we need to also allow contract employees
 			{
 				echo "<option value='cEmployee' $cEmployeeSelected>Contract</option>";
 			}
 										
-			echo "			</select></br></br>
+			echo "</select></br></br>
 																			
-							<input type='submit' name='searchBtn' value='Search'><br><hr>
-						";
+					<input type='submit' name='searchBtn' value='Search'><br><hr>";
 			
 			if(($lastNameToSearchFor != "") || ($firstNameToSearchFor != "") || ($SINtoSearchFor != ""))// make sure at least one of the search criteria pieces is not blank
 			{
 				$link = mysqli_connect($serverName, $userName, $password, $databaseName);// connect to the database
 								
-				if(!$link)
+				if(!$link)//if the database connection failed display an error message
 				{
-					//if the database connection failed send error message
 					 echo "<br>Error: Could not connect to the database.";
 				}
 				else// we have a connection
@@ -174,14 +180,17 @@ Date: April 17, 2015
 					
 					echo "$dropdownMenu";
 							
-					if(!empty($_POST['employeeToDisplayDropDown']))// check if the user has selected an employee
+					if(!empty($_POST['employeeToDisplayDropDown']))// check if the user has selected an employee from the drop down menu
 					{
-						$SINofEmployee = $_POST['employeeToDisplayDropDown'];
+						//$SINofEmployee = $_POST['employeeToDisplayDropDown'];
 						
+						parse_str($_POST['employeeToDisplayDropDown']);// extract $SINofEmployee and $Company from the value of the drop down
 						
-						$employeeInfo = changeDisplayedEmployee($SINofEmployee, $link, $employeeType);
+						$employeeInfo = changeDisplayedEmployee($SINofEmployee, $Company, $link, $employeeType);
 						
 						echo $employeeInfo . "<br><hr><br><input type='submit' name='editBtn' value='Edit'>";
+						echo "<input type='hidden' name='hiddenSIN' value=\"$SINofEmployee\">
+						      <input type='hidden' name='hiddenCompany' value=\"$Company\">";
 						
 					}														
 					
@@ -189,8 +198,7 @@ Date: April 17, 2015
 								
 				}
 			}
-									
-			
+												
 			?>
 						
 
@@ -221,8 +229,8 @@ Date: April 17, 2015
 				$userType = $_SESSION['userType'];
 																																
 				//select lastName, firstName, SIN from employees where employeeType != contract & employee is active
-				//$queryString = "SELECT p_lastName, p_firstName, si_number FROM Person ";
-$queryString = "SELECT Last_Name, First_Name, SIN FROM ";
+//$queryString = "SELECT p_lastName, p_firstName, si_number FROM Person ";
+				$queryString = "SELECT Last_Name, First_Name, SIN, Company FROM ";
 				
 				switch($employeeType)
 				{
@@ -242,18 +250,18 @@ $queryString = "SELECT Last_Name, First_Name, SIN FROM ";
 				
 				if($lastNameToSearchFor != "")
 				{
-					$queryString .= "WHERE Last_Name LIKE '%$lastNameToSearchFor%' ";
+					$queryString .= "WHERE Last_Name LIKE \"%$lastNameToSearchFor%\" ";
 				}
 				
 				if($firstNameToSearchFor != "")
 				{
 					if($lastNameToSearchFor != "")// check if the last name was not blank
 					{
-						$queryString .= "AND First_Name LIKE '%$firstNameToSearchFor%' ";
+						$queryString .= "AND First_Name LIKE \"%$firstNameToSearchFor%\" ";
 					}
 					else// last name was blank
 					{
-						$queryString .= "WHERE First_Name LIKE '%$firstNameToSearchFor%' ";
+						$queryString .= "WHERE First_Name LIKE \"%$firstNameToSearchFor%\" ";
 					}
 				}
 				
@@ -274,7 +282,7 @@ $queryString = "SELECT Last_Name, First_Name, SIN FROM ";
 					$queryString .= "AND Status='Active' ";
 				}
 				
-				$queryString .= "ORDER BY 'Last Name';";
+				$queryString .= "ORDER BY \"Last Name\";";
 				
 				//display lastname firstname and sin of employees found in list form.
 				//User will be able to click on them and display that employees info
@@ -285,7 +293,8 @@ $queryString = "SELECT Last_Name, First_Name, SIN FROM ";
 				{
 					while($row = $result->fetch_assoc())
 					{
-						$returnString .= "<option value='" . $row["SIN"] . "'>" . $row["Last_Name"] . ", "
+						$returnString .= "<option value=\"SINofEmployee=" . $row["SIN"] . "&Company=" . $row["Company"] . "\">"
+						                 . $row["Last_Name"] . ", "
    						                 . $row["First_Name"] . ", "
 										 . $row["SIN"] . "</option>";
 					}
@@ -309,7 +318,7 @@ $queryString = "SELECT Last_Name, First_Name, SIN FROM ";
 			 * Parameters: 
 			 * Return: 
 			 */
-			function changeDisplayedEmployee($SINofEmployee, $link, $employeeType)
+			function changeDisplayedEmployee($SINofEmployee, $Company, $link, $employeeType)
 			{
 				$returnString = "";
 				$fisrtName = "";
@@ -343,7 +352,7 @@ $queryString = "SELECT Last_Name, First_Name, SIN FROM ";
 						break;								
 					}
 
-					$queryString .= "WHERE SIN='$SINofEmployee';";
+					$queryString .= "WHERE SIN='$SINofEmployee' && Company=\"$Company\";";
 				
 				
 					if($result = $link->query($queryString))
@@ -418,13 +427,14 @@ $queryString = "SELECT Last_Name, First_Name, SIN FROM ";
 					else// query failed
 					{
 						$returnString = "Could not display the Employees Information. Sorry for the inconvenience";
+						$returnString .= "<hr>$queryString";
 					}																
 							
 				
 				}
 				else// it's a contract employee
 				{
-					$queryString .= "CT_Display WHERE Business_Number='$SINofEmployee';";
+					$queryString .= "CT_Display WHERE Business_Number='$SINofEmployee' && Company=\"$Company\";";
 					
 					if($userType != "administrator")
 					{
