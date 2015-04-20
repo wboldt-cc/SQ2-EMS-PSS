@@ -145,6 +145,7 @@ CREATE TABLE SN_Payroll
     pieces_sat float,
     pieces_sun float,
     weekly_pieces float,
+    weekly_pay float,
     pay_date date,
     notes varchar(100)
 );
@@ -160,6 +161,10 @@ ON sn_company_id = companyID;
 UPDATE SN_Payroll
 SET weekly_pieces = pieces_mon + pieces_tues + pieces_wed + pieces_thurs + pieces_fri + pieces_sat + pieces_sun,
 	worked_hours = hours_mon + hours_tues + hours_wed + hours_thurs + hours_fri + hours_sat + hours_sun,
+    weekly_pay = weekly_pay * weekly_pieces,
+    weekly_pay = CASE
+    WHEN worked_hours > 40 THEN weekly_pay + 150
+    END,
     notes = case
     WHEN weekly_pieces = MAX(weekly_pieces) THEN 'Most productive'
     END;
