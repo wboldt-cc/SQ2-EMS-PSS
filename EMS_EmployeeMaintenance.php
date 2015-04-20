@@ -51,7 +51,7 @@ Date: December 8, 2013
 						"</tr>" +
 						"<tr>" +
 							"<th align='right'>Date Of Birth:</th>" +
-							"<td><input type='date' id='dob' min='1940-01-01' max='<?php date_default_timezone_set("EST"); echo date('Y-m-d'); ?>'></td>" +
+							"<td><input type='date' id='dob' value='1000-01-01' min='1940-01-01' max='<?php date_default_timezone_set("EST"); echo date('Y-m-d'); ?>'></td>" +
 						"</tr>" +
 						"<tr>" +
 							"<th align='right'>SIN:</th>" +
@@ -62,11 +62,11 @@ Date: December 8, 2013
 					"<table>" +
 						"<tr>" +
 							"<th align='right'>Date Of Hire:</th>" +
-							"<td><input type='date' id='dob' min='1940-01-01' max='<?php date_default_timezone_set("EST"); echo date('Y-m-d'); ?>'></td>" +
+							"<td><input type='date' id='dob' value='1000-01-01' min='1940-01-01' max='<?php date_default_timezone_set("EST"); echo date('Y-m-d'); ?>'></td>" +
 						"</tr>" +
 						"<tr>" +
 							"<th align='right'>Date Of Termination:</th>" +
-							"<td><input type='date' id='dob' min='1940-01-01' max='<?php date_default_timezone_set("EST"); echo date('Y-m-d'); ?>'></td>" +
+							"<td><input type='date' id='dob' value='1000-01-01' min='1940-01-01' max='<?php date_default_timezone_set("EST"); echo date('Y-m-d'); ?>'></td>" +
 						"</tr>" +
 						"<tr>" +
 							"<th align='right'>Salary:</th>" +
@@ -88,7 +88,7 @@ Date: December 8, 2013
 						"</tr>" +
 						"<tr>" +
 							"<th align='right'>Date Of Birth:</th>" +
-							"<td><input type='date' id='dob' min='1940-01-01' max='<?php date_default_timezone_set("EST"); echo date('Y-m-d'); ?>'></td>" +
+							"<td><input type='date' id='dob' value='1000-01-01' min='1940-01-01' max='<?php date_default_timezone_set("EST"); echo date('Y-m-d'); ?>'></td>" +
 						"</tr>" +
 						"<tr>" +
 							"<th align='right'>SIN:</th>" +
@@ -99,11 +99,11 @@ Date: December 8, 2013
 					"<table>" +
 						"<tr>" +
 							"<th align='right'>Date Of Hire:</th>" +
-							"<td><input type='date' id='dob' min='1940-01-01' max='<?php date_default_timezone_set("EST"); echo date('Y-m-d'); ?>'></td>" +
+							"<td><input type='date' id='dob' value='1000-01-01' min='1940-01-01' max='<?php date_default_timezone_set("EST"); echo date('Y-m-d'); ?>'></td>" +
 						"</tr>" +
 						"<tr>" +
 							"<th align='right'>Date Of Termination:</th>" +
-							"<td><input type='date' id='dob' min='1940-01-01' max='<?php date_default_timezone_set("EST"); echo date('Y-m-d'); ?>'></td>" +
+							"<td><input type='date' id='dob' value='1000-01-01' min='1940-01-01' max='<?php date_default_timezone_set("EST"); echo date('Y-m-d'); ?>'></td>" +
 						"</tr>" +
 						"<tr>" +
 							"<th align='right'>Hourly Rate:</th>" +
@@ -125,7 +125,7 @@ Date: December 8, 2013
 						"</tr>" +
 						"<tr>" +
 							"<th align='right'>Date Of Birth:</th>" +
-							"<td><input type='date' id='dob' min='1940-01-01' max='<?php date_default_timezone_set("EST"); echo date('Y-m-d'); ?>'></td>" +
+							"<td><input type='date' id='dob' value='1000-01-01' min='1940-01-01' max='<?php date_default_timezone_set("EST"); echo date('Y-m-d'); ?>'></td>" +
 						"</tr>" +
 						"<tr>" +
 							"<th align='right'>SIN:</th>" +
@@ -158,7 +158,7 @@ Date: December 8, 2013
 						"</tr>" +
 						"<tr>" +
 							"<th align='right'>Date Of Birth:</th>" +
-							"<td><input type='date' id='dob' min='1940-01-01' max='<?php date_default_timezone_set("EST"); echo date('Y-m-d'); ?>'></td>" +
+							"<td><input type='date' id='dob' value='1000-01-01' min='1940-01-01' max='<?php date_default_timezone_set("EST"); echo date('Y-m-d'); ?>'></td>" +
 						"</tr>" +
 						"<tr>" +
 							"<th align='right'>BN:</th>" +
@@ -169,11 +169,11 @@ Date: December 8, 2013
 					"<table>" +
 						"<tr>" +
 							"<th align='right'>Contract Start Date:</th>" +
-							"<td><input type='date' id='dob' min='1940-01-01' max='<?php date_default_timezone_set("EST"); echo date('Y-m-d'); ?>'></td>" +
+							"<td><input type='date' id='dob' value='1000-01-01' min='1940-01-01' max='<?php date_default_timezone_set("EST"); echo date('Y-m-d'); ?>'></td>" +
 						"</tr>" +
 						"<tr>" +
 							"<th align='right'>Contract Stop Date:</th>" +
-							"<td><input type='date' id='dob' min='1940-01-01' max='<?php date_default_timezone_set("EST"); echo date('Y-m-d'); ?>'></td>" +
+							"<td><input type='date' id='dob' value='1000-01-01' min='1940-01-01' max='<?php date_default_timezone_set("EST"); echo date('Y-m-d'); ?>'></td>" +
 						"</tr>" +
 						"<tr>" +
 							"<th align='right'>Contract Pay:</th>" +
@@ -234,10 +234,6 @@ Date: December 8, 2013
 			Copyright &copy MATTHEWSOFT
 		</div>
 		
-		<?php
-			
-		?>
-
 	</body>
 
 
