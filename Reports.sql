@@ -110,7 +110,7 @@ INSERT INTO PT_payroll (full_name, company_id, si_num, hours_mon, hours_tues, ho
 SELECT CONCAT(p_lastname, ', ', p_firstname), companyName, si_number, mon_hours, tues_hours, wed_hours, thurs_hours, fri_hours, sat_hours, sun_hours, hourlyRate, pay_period_start_date
 FROM PT_View
 JOIN time_cards
-ON (pt_employee_id = tc_employee_id) AND (pt_company_id = tc_company_id)
+ON (pt_employee_id = tc_employee_id) AND (pt_company_id = tc_company_id) AND (current_status = 1)
 JOIN Company
 ON pt_company_id = companyID;
 
@@ -154,7 +154,7 @@ INSERT INTO SN_payroll (full_name, company_id, si_num, hours_mon, hours_tues, ho
 SELECT CONCAT(p_lastname, ', ', p_firstname), companyName, si_number, mon_hours, tues_hours, wed_hours, thurs_hours, fri_hours, sat_hours, sun_hours, piece_pay, pay_period_start_date
 FROM SN_View
 JOIN time_cards
-ON (sn_employee_id = tc_employee_id) AND (sn_company_id = tc_company_id)
+ON (sn_employee_id = tc_employee_id) AND (sn_company_id = tc_company_id) AND (current_status = 1)
 JOIN Company
 ON sn_company_id = companyID;
 
@@ -186,7 +186,7 @@ INSERT INTO CT_payroll (full_name, company_id, si_num, worked_hours, weekly_pay,
 SELECT p_lastname, companyName, si_number, '--', fixedContractAmount , pay_period_start_date
 FROM CT_View
 JOIN time_cards
-ON (ct_employee_id = tc_employee_id) AND (ct_company_id = tc_company_id)
+ON (ct_employee_id = tc_employee_id) AND (ct_company_id = tc_company_id) AND (current_status = 1)
 JOIN Company
 ON ct_company_id = companyID;
 
