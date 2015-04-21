@@ -264,7 +264,7 @@ ON (CT_view.si_number = CT_Payroll.si_num) AND (CT_View.ct_company_id = (SELECT 
 CREATE TABLE SN_active
 (
 	f_name varchar(100),
-    doh int,
+    doh date,
     av_hours float,
     company_name varchar(50)
 );
