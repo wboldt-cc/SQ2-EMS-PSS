@@ -151,7 +151,8 @@ CREATE TABLE SN_Payroll
 );
 
 INSERT INTO SN_payroll (full_name, company_id, si_num, hours_mon, hours_tues, hours_wed, hours_thurs, hours_fri, hours_sat, hours_sun, pieces_mon, pieces_tues, pieces_wed, pieces_thurs, pieces_fri, pieces_sat, pieces_sun, weekly_pay, pay_date)
-SELECT CONCAT(p_lastname, ', ', p_firstname), companyName, si_number, mon_hours, tues_hours, wed_hours, thurs_hours, fri_hours, sat_hours, sun_hours, mon_pieces, tues_pieces, wed_pieces, thurs_pieces, fri_pieces, sat_pieces, sun_pieces, piece_pay, pay_period_start_date
+SELECT CONCAT(p_lastname, ', ', p_firstname), companyName, si_number, mon_hours, tues_hours, wed_hours, thurs_hours, fri_hours, sat_hours, sun_hours, mon_pieces, tues_pieces, wed_pieces, thurs_pieces, fri_pieces, sat_pieces, sun_pieces
+, piece_pay, pay_period_start_date
 FROM SN_View
 JOIN time_cards
 ON (sn_employee_id = tc_employee_id) AND (sn_company_id = tc_company_id) AND (current_status = 1)
@@ -176,6 +177,8 @@ CREATE TABLE CT_Payroll
 	full_name varchar(50),
     company_id varchar(50),
     si_num int,
+    contract_start date,
+    contract_end date,
     worked_hours varchar(10),
     weekly_pay float,
     pay_date date,
@@ -183,7 +186,7 @@ CREATE TABLE CT_Payroll
 );
 
 INSERT INTO CT_payroll (full_name, company_id, si_num, worked_hours, weekly_pay, pay_date)
-SELECT p_lastname, companyName, si_number, '--', fixedContractAmount , pay_period_start_date
+SELECT p_lastname, companyName, si_number, contract_Start_date, contract_stop_date, '--', fixedContractAmount , pay_period_start_date
 FROM CT_View
 JOIN time_cards
 ON (ct_employee_id = tc_employee_id) AND (ct_company_id = tc_company_id) AND (current_status = 1)
