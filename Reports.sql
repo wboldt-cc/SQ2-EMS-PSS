@@ -222,11 +222,11 @@ CREATE TABLE FT_active
 );
 
 INSERT INTO FT_active
-SELECT CONCAT(p_lastname, ', ', p_firstname) AS fname, date_of_hire, AVG(worked_hours), company_id
+SELECT CONCAT(p_lastname, ', ', p_firstname) AS fname, ft_date_of_hire, AVG(worked_hours), company_id
 FROM FT_View
 JOIN FT_Payroll
 ON (FT_view.si_number = FT_Payroll.si_num) AND (FT_View.ft_company_id = (SELECT companyID FROM Company WHERE company_id = companyName))
-GROUP BY fname, date_of_hire, company_id;
+GROUP BY fname, ft_date_of_hire, company_id;
 
 
 CREATE TABLE PT_active
@@ -237,12 +237,12 @@ CREATE TABLE PT_active
     company_name varchar(50)
 );
 
-INSERT INTO FT_active
-SELECT CONCAT(p_lastname, ', ', p_firstname) AS fname, date_of_hire, AVG(worked_hours), company_id
+INSERT INTO PT_active
+SELECT CONCAT(p_lastname, ', ', p_firstname) AS fname, pt_date_of_hire, AVG(worked_hours), company_id
 FROM PT_View
 JOIN PT_Payroll
 ON (PT_view.si_number = PT_Payroll.si_num) AND (PT_View.Pt_company_id = (SELECT companyID FROM Company WHERE company_id = companyName))
-GROUP BY fname, date_of_hire, company_id;
+GROUP BY fname, pt_date_of_hire, company_id;
 
 
 
@@ -255,7 +255,7 @@ CREATE TABLE CT_active
 );
 
 INSERT INTO CT_active
-SELECT p_lastname AS fname, date_of_hire, '--', company_id
+SELECT p_lastname AS fname, contract_start_date, '--', company_id
 FROM CT_View
 JOIN CT_Payroll
 ON (CT_view.si_number = CT_Payroll.si_num) AND (CT_View.ct_company_id = (SELECT companyID FROM Company WHERE company_id = companyName));
