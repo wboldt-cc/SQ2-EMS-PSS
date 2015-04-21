@@ -118,8 +118,25 @@ Date: December 8, 2013
 						$whwReportSelected = "selected";
 						break;
 					case "pReport":
-						$generatedReport .= generate_pReport($link, $companyName);
-						$pReportSelected = "selected";
+						$returnedString = generate_ftPayrollTable($link);
+						$returnedString .= generate_ptPayrollTable($link);
+						$returnedString .= generate_snPayrollTable($link);
+						if($userType == "administrator")
+						{							
+							$returnedString .= generate_ctPayrollTable($link);
+						}
+						
+						if($returnedString != "")// check if there was an error while generating the tables
+						{
+							echo "$returnedString";
+						}
+						else
+						{					
+							$generatedReport .= generate_pReport($link, $companyName, $userType);
+							
+							$generatedReport .= "For Week Ending: WEEK";
+							$pReportSelected = "selected";
+						}
 						break;
 					case "aeReport":
 						$generatedReport .= generate_aeReport($link, $companyName);
@@ -148,11 +165,11 @@ Date: December 8, 2013
 					$companyName = $_POST['companyName'];
 				}
 				
-				if(empty($_POST['reportToGenerateDropDown']))
+				if(empty($_POST['reportToGenerateDropDown']))// check if the user has selected the type of report
 				{
 					$generatedReport .= "Please select a report type from the drop down menu.";
 				}
-				else
+				else// find which type of report the user selected and make it selected
 				{
 					$typeOfReport = $_POST['reportToGenerateDropDown'];
 					switch($typeOfReport)
@@ -447,6 +464,80 @@ Date: December 8, 2013
 				
 				return $returnString;
 			}
+
+			/*
+			 * Function: 
+			 * Description: This function generates the ___ Report and returns it as a string
+			 * Parameters: The link to the database connection and the name of the company
+			 *             that the report should be generated for
+			 * Return: The ___ Report as a string
+			 */
+			function generate_ftPayrollTable($link)
+			{
+				$returnString = "";
+								
+				$queryString = "DROP TABLE IF EXISTS FT_Payroll;";
+				if(!$link->query($queryString))
+				{
+					$returnString = "There was a problem dropping the FT_Payroll Table in the Database.";
+				}
+				else// previous query succeeded
+				{
+					$queryString = "CREATE TABLE FT_Payroll
+									(
+										full_name varchar(50),
+										company_id varchar(50),
+										si_num int,
+										worked_hours float,
+										hours_mon float,
+										hours_tues float,
+										hours_wed float,
+										hours_thurs float,
+										hours_fri float,
+										hours_sat float,
+										hours_sun float,
+										weekly_pay float,
+										pay_date date,
+										notes varchar(100)
+									);";
+								
+					if(!$link->query($queryString))
+					{
+						$returnString = "There was a problem creating the FT_payroll Table in the Database.";
+					}
+					else// previous query succeeded
+					{
+						$queryString = "INSERT INTO FT_payroll (full_name, company_id, si_num, hours_mon, hours_tues, hours_wed, hours_thurs, hours_fri, hours_sat, hours_sun, weekly_pay, pay_date)
+										SELECT CONCAT(p_lastname, ', ', p_firstname), companyName, si_number, mon_hours, tues_hours, wed_hours, thurs_hours, fri_hours, sat_hours, sun_hours, salary, pay_period_start_date
+										FROM FT_View
+										JOIN time_cards
+										ON (ft_employee_id = tc_employee_id) AND (ft_company_id = tc_company_id) JOIN Company ON ft_company_id = companyID;";
+								
+						if(!$link->query($queryString))
+						{
+							$returnString = "There was a problem inserting into the FT_payroll Table.";
+						}
+						else// previous query succeeded
+						{
+							$queryString = 	"UPDATE FT_payroll
+											SET weekly_pay = weekly_pay / 52,
+												worked_hours = hours_mon + hours_tues + hours_wed + hours_thurs + hours_fri + hours_sat + hours_sun,
+												notes = CASE
+												WHEN worked_hours < 37.5 THEN 'Not full work week'
+												Else ''
+											END;";	
+												
+							if(!$link->query($queryString))
+							{
+								$returnString = "There was a problem running the update on the FT_payroll Table.";
+							}
+						}
+					}				
+
+				}															
+				
+				return $returnString;
+			}
 			
 			/*
 			 * Function: 
@@ -455,14 +546,353 @@ Date: December 8, 2013
 			 *             that the report should be generated for
 			 * Return: The ___ Report as a string
 			 */
-			function generate_pReport($link, $companyName)
+			function generate_ptPayrollTable($link)
 			{
-				$returnString = "Payroll Report ($companyName)<br>";
-				$queryString = "SELECT * FROM pReport WHERE companyName=$companyName;";
+				$returnString = "";
+								
+				$queryString = "DROP TABLE IF EXISTS PT_Payroll;";
+				if(!$link->query($queryString))
+				{
+					$returnString = "There was a problem dropping the PT_Payroll Table in the Database.";
+				}
+				else// previous query succeeded
+				{
+					$queryString = "CREATE TABLE PT_Payroll
+									(
+										full_name varchar(50),
+										company_id varchar(50),
+										si_num int,
+										worked_hours float,
+										hours_mon float,
+										hours_tues float,
+										hours_wed float,
+										hours_thurs float,
+										hours_fri float,
+										hours_sat float,
+										hours_sun float,
+										weekly_pay float,
+										pay_date date,
+										notes varchar(100)
+									);";
+								
+					if(!$link->query($queryString))
+					{
+						$returnString = "There was a problem creating the PT_payroll Table in the Database.";
+					}
+					else// previous query succeeded
+					{
+						$queryString = "INSERT INTO PT_payroll (full_name, company_id, si_num, hours_mon, hours_tues, hours_wed, hours_thurs, hours_fri, hours_sat, hours_sun, weekly_pay, pay_date)
+										SELECT CONCAT(p_lastname, ', ', p_firstname), companyName, si_number, mon_hours, tues_hours, wed_hours, thurs_hours, fri_hours, sat_hours, sun_hours, hourlyRate, pay_period_start_date
+										FROM PT_View
+										JOIN time_cards
+										ON (pt_employee_id = tc_employee_id) AND (pt_company_id = tc_company_id)
+										JOIN Company
+										ON pt_company_id = companyID;";
+								
+						if(!$link->query($queryString))
+						{
+							$returnString = "There was a problem inserting into the PT_payroll Table.";
+						}
+						else// previous query succeeded
+						{
+							$queryString = 	"UPDATE PT_Payroll
+											SET worked_hours = hours_mon + hours_tues + hours_wed + hours_thurs + hours_fri + hours_sat + hours_sun,
+												weekly_pay = (weekly_pay * hours_worked),
+												notes = CASE
+												WHEN worked_hours > 40 THEN (worked_hours - 40)
+												ELSE ''
+												END;";	
+												
+							if(!$link->query($queryString))
+							{
+								$returnString = "There was a problem running the update on the PT_Payroll Table.";
+							}
+						}
+					}				
+
+				}															
+				
+				return $returnString;
+			}
+
+			
+			/*
+			 * Function: 
+			 * Description: This function generates the ___ Report and returns it as a string
+			 * Parameters: The link to the database connection and the name of the company
+			 *             that the report should be generated for
+			 * Return: The ___ Report as a string
+			 */
+			function generate_snPayrollTable($link)
+			{
+				$returnString = "";
+								
+				$queryString = "DROP TABLE IF EXISTS SN_Payroll;";
+				if(!$link->query($queryString))
+				{
+					$returnString = "There was a problem dropping the SN_Payroll Table in the Database.";
+				}
+				else// previous query succeeded
+				{
+					$queryString = "CREATE TABLE SN_Payroll
+									(
+										full_name varchar(50),
+										company_id varchar(50),
+										si_num int,
+										worked_hours float,
+										hours_mon float,
+										hours_tues float,
+										hours_wed float,
+										hours_thurs float,
+										hours_fri float,
+										hours_sat float,
+										hours_sun float,
+										pieces_mon float,
+										pieces_tues float,
+										pieces_wed float,
+										pieces_thurs float,
+										pieces_fri float,
+										pieces_sat float,
+										pieces_sun float,
+										weekly_pieces float,
+										weekly_pay float,
+										pay_date date,
+										notes varchar(100)
+									);";
+								
+					if(!$link->query($queryString))
+					{
+						$returnString = "There was a problem creating the SN_Payroll Table in the Database.";
+					}
+					else// previous query succeeded
+					{
+						$queryString = "INSERT INTO SN_payroll (full_name, company_id, si_num, hours_mon, hours_tues, hours_wed, hours_thurs, hours_fri, hours_sat, hours_sun, pieces_mon, pieces_tues, pieces_wed, pieces_thurs, pieces_fri, pieces_sat, pieces_sun, weekly_pay, pay_date)
+										SELECT CONCAT(p_lastname, ', ', p_firstname), companyName, si_number, mon_hours, tues_hours, wed_hours, thurs_hours, fri_hours, sat_hours, sun_hours, piece_pay, pay_period_start_date
+										FROM SN_View
+										JOIN time_cards
+										ON (sn_employee_id = tc_employee_id) AND (sn_company_id = tc_company_id)
+										JOIN Company
+										ON sn_company_id = companyID;";
+								
+						if(!$link->query($queryString))
+						{
+							$returnString = "There was a problem inserting into the SN_payroll Table.";
+						}
+						else// previous query succeeded
+						{
+							$queryString = 	"UPDATE SN_Payroll
+											SET weekly_pieces = pieces_mon + pieces_tues + pieces_wed + pieces_thurs + pieces_fri + pieces_sat + pieces_sun,
+												worked_hours = hours_mon + hours_tues + hours_wed + hours_thurs + hours_fri + hours_sat + hours_sun,
+												weekly_pay = weekly_pay * weekly_pieces,
+												weekly_pay = CASE
+												WHEN worked_hours > 40 THEN weekly_pay + 150
+												END,
+												notes = case
+												WHEN weekly_pieces = MAX(weekly_pieces) THEN 'Most productive'
+												END;";	
+												
+							if(!$link->query($queryString))
+							{
+								$returnString = "There was a problem running the update on the SN_Payroll Table.";
+							}
+						}
+					}				
+
+				}															
+				
+				return $returnString;
+			}
+
+			
+			/*
+			 * Function: 
+			 * Description: This function generates the ___ Report and returns it as a string
+			 * Parameters: The link to the database connection and the name of the company
+			 *             that the report should be generated for
+			 * Return: The ___ Report as a string
+			 */
+			function generate_ctPayrollTable($link)
+			{
+				$returnString = "";
+								
+				$queryString = "DROP TABLE IF EXISTS CT_Payroll;";
+				if(!$link->query($queryString))
+				{
+					$returnString = "There was a problem dropping the CT_Payroll Table in the Database.";
+				}
+				else// previous query succeeded
+				{
+					$queryString = "CREATE TABLE CT_Payroll
+									(
+										full_name varchar(50),
+										company_id varchar(50),
+										si_num int,
+										worked_hours varchar(10),
+										weekly_pay float,
+										pay_date date,
+										notes varchar(100)
+									);";
+								
+					if(!$link->query($queryString))
+					{
+						$returnString = "There was a problem creating the CT_payroll Table in the Database.";
+					}
+					else// previous query succeeded
+					{
+						$queryString = "INSERT INTO CT_payroll (full_name, company_id, si_num, worked_hours, weekly_pay, pay_date)
+										SELECT p_lastname, companyName, si_number, '--', fixedContractAmount , pay_period_start_date
+										FROM CT_View
+										JOIN time_cards
+										ON (ct_employee_id = tc_employee_id) AND (ct_company_id = tc_company_id)
+										JOIN Company
+										ON ct_company_id = companyID;";
+								
+						if(!$link->query($queryString))
+						{
+							$returnString = "There was a problem inserting into the CT_payroll Table.";
+						}
+						else// previous query succeeded
+						{
+							$queryString = 	"UPDATE CT_Payroll
+											SET weekly_pay = (weekly_pay * 7 / DATEDIFF(contract_stop_date, contract_start_date)),
+												notes = DATEDIFF(contract_Stop_date, CURDATE()) + ' days remaining';";	
+												
+							if(!$link->query($queryString))
+							{
+								$returnString = "There was a problem running the update on the CT_Payroll Table.";
+							}
+						}
+					}				
+
+				}															
+				
+				return $returnString;
+			}
+
+			
+			/*
+			 * Function: 
+			 * Description: This function generates the ___ Report and returns it as a string
+			 * Parameters: The link to the database connection and the name of the company
+			 *             that the report should be generated for
+			 * Return: The ___ Report as a string
+			 */
+			function generate_pReport($link, $companyName, $userType)
+			{
+				$returnString = "<b>Payroll Report<b> ($companyName)<br>";
+				//$errorOccured = "false";
+				$tableName = "";
+				$queryString = "";
+				
+				for($i = 1; $i <= 4; $i++)
+				{
+					if(($i == 4) && ($userType != 'administrator'))
+					{
+						break;// don't want to include the contract employee report
+					}
+					
+					switch($i)
+					{
+					case 1:
+						$queryString = "SELECT * FROM FT_Payroll WHERE companyName=$companyName;";
+						$tableName = "FullTime";
+						break;
+					case 2:
+						$queryString = "SELECT * FROM PT_Payroll WHERE companyName=$companyName;";
+						$tableName = "PartTime";
+						break;
+					case 3:
+						$queryString = "SELECT * FROM SN_Payroll WHERE companyName=$companyName;";
+						$tableName = "Seasonal";
+						break;
+					case 4:
+						$queryString = "SELECT * FROM CT_Payroll WHERE companyName=$companyName;";
+						$tableName = "Contract";
+						break;
+					}
+					
+					if($result = $link->query($queryString))
+					{
+						/* add the headings for each column */
+						$returnString .= "<table border='1'>
+										  <tr>
+											<th colspan='4'>$tableName</th>
+										  </tr>
+										  <tr>
+											<th>Employee Name</th>
+											<th>Hours</th>
+											<th>Gross</th>
+											<th>Notes</th>
+										  </tr>";
+						
+						while($row = $result->fetch_assoc())
+						{
+							$returnString .= "<tr>
+												<td>" . $row["full_name"] . "</td>
+												<td>" . $row["worked_hours"] . "</td>
+												<td>" . $row["weekly_pay"] . "</td>
+												<td>" . $row["notes"] . "</td>
+											  </tr>";
+														
+						}	
+						
+						$returnString .= "</table><br><hr>";				
+						
+						$result->free();
+					}
+					else// query failed
+					{
+						$returnString = "<br>FAILED while trying to generate the $tableName Payroll report. Sorry for the inconvenience";
+					}
+										
+				
+				} 
+											
+				
+				/*
+				$queryString = "SELECT * FROM PT_Payroll WHERE companyName=$companyName;";
+				
+				if($result = $link->query($queryString) && $errorOccured == "false")
+				{
+					/* add the headings for each column 
+					$returnString .= "<table border='1'>
+									  <tr>
+										<th colspan='4'>PartTime</th>
+									  </tr>
+									  <tr>
+										<th>Employee Name</th>
+										<th>Hours</th>
+										<th>Gross</th>
+										<th>Notes</th>
+									  </tr>";
+					
+					while($row = $result->fetch_assoc())
+					{
+						$returnString .= "<tr>
+											<td>" . $row["full_name"] . "</td>
+											<td>" . $row["worked_hours"] . "</td>
+											<td>" . $row["weekly_pay"] . "</td>
+											<td>" . $row["notes"] . "</td>
+										  </tr>";
+													
+					}	
+					
+					$returnString .= "</table>";
+					
+					
+					$result->free();
+				}
+				else// query failed
+				{
+					$errorOccured = "true";
+					$returnString = "Could not generate the FT_Payroll report. Sorry for the inconvenience";
+				}
+				
+				$queryString = "SELECT * FROM FT_Payroll WHERE companyName=$companyName;";
 				
 				if($result = $link->query($queryString))
 				{
-					/* add the headings for each column */
+					/* add the headings for each column 
 					$returnString .= "<table border='1'>
 									  <tr>
 										<th colspan='4'>FullTime</th>
@@ -477,38 +907,27 @@ Date: December 8, 2013
 					while($row = $result->fetch_assoc())
 					{
 						$returnString .= "<tr>
-											<td>" . $row[""] . "</td>
-											<td>" . $row[""] . "</td>
-											<td>" . $row[""] . "</td>
-											<td>" . $row[""] . "</td>
-											<td>" . $row[""] . "</td>
-											<td>" . $row[""] . "</td>
+											<td>" . $row["full_name"] . "</td>
+											<td>" . $row["worked_hours"] . "</td>
+											<td>" . $row["weekly_pay"] . "</td>
+											<td>" . $row["notes"] . "</td>
 										  </tr>";
 													
 					}	
 					
 					$returnString .= "</table>";
 					
-					$returnString .= "For Week Ending: WEEK";
 					
 					$result->free();
 				}
 				else// query failed
 				{
-					$returnString = "Could not generate the report. Sorry for the inconvenience";
-					$returnString .= "<table border='1'>
-									  <tr>
-										<th colspan='4'>FullTime</th>
-									  </tr>
-									  <tr>
-										<th>Employee Name</th>
-										<th>Hours</th>
-										<th>Gross</th>
-										<th>Notes</th>
-									  </tr>";
-									  $returnString .= "</table>";
+					$errorOccured = "true";
+					$returnString = "Could not generate the FT_Payroll report. Sorry for the inconvenience";
 				}
-				
+				*/
+//$returnString .= "For Week Ending: WEEK";
+					
 				return $returnString;
 			}
 			
