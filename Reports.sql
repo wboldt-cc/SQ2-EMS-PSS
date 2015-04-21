@@ -42,7 +42,7 @@ INSERT INTO seniority_report
 SELECT concat(p_lastname, ', ', p_firstname), si_number, 'Seasonal', CONCAT(season_year, season_start_date), companyName, (DATEDIFF(CURDATE(), CONCAT(season_year, season_start_date)))
 FROM SN_View
 JOIN Seasons
-ON Seasons = season_start_date
+ON season = season_type
 JOIN Company
 ON sn_company_id = companyID
 WHERE current_status = 1;
