@@ -234,84 +234,128 @@ Date: April 17, 2015
 																																
 				//select lastName, firstName, SIN from employees where employeeType != contract & employee is active
 //$queryString = "SELECT p_lastName, p_firstName, si_number FROM Person ";
-				$queryString = "SELECT Last_Name, First_Name, SIN, Company FROM ";
-				
-				switch($employeeType)
+
+				if($employeeType != "cEmployee")
 				{
-				case 'ftEmployee':
-					$queryString .= "FT_Display ";
-					break;
-				case 'ptEmployee':
-					$queryString .= "PT_Display ";
-					break;
-				case 'sEmployee':
-					$queryString .= "SN_Display ";
-					break;
-				case 'cEmployee':
-					$queryString .= "CT_Display ";
-					break;									
-				}
-				
-				if($lastNameToSearchFor != "")
-				{
-					$queryString .= "WHERE Last_Name LIKE \"%$lastNameToSearchFor%\" ";
-				}
-				
-				if($firstNameToSearchFor != "")
-				{
-					if($lastNameToSearchFor != "")// check if the last name was not blank
+					$queryString = "SELECT Last_Name, First_Name, SIN, Company FROM ";
+					
+					switch($employeeType)
 					{
-						$queryString .= "AND First_Name LIKE \"%$firstNameToSearchFor%\" ";
-					}
-					else// last name was blank
-					{
-						$queryString .= "WHERE First_Name LIKE \"%$firstNameToSearchFor%\" ";
-					}
-				}
-				
-				if($SINtoSearchFor != "")
-				{
-					if(($lastNameToSearchFor != "") || ($firstNameToSearchFor != ""))// check if either of the names were not blank
-					{
-						$queryString .= "AND SIN LIKE '%$SINtoSearchFor%' ";
-					}
-					else// both names were blank
-					{
-						$queryString .= "WHERE SIN LIKE '%$SINtoSearchFor%' ";
-					}
-				}
-				
-				if($userType == "general")// general users only have access to active employees
-				{
-					$queryString .= "AND Status='Active' ";
-				}
-				
-				$queryString .= "ORDER BY \"Last Name\";";
-				
-				//display lastname firstname and sin of employees found in list form.
-				//User will be able to click on them and display that employees info
-				$returnString = "<select name='employeeToDisplayDropDown'>
-										<option value=''></option>";
-										
-				if($result = $link->query($queryString))// make sure query was successful
-				{
-					while($row = $result->fetch_assoc())
-					{
-						$returnString .= "<option value=\"SINofEmployee=" . $row["SIN"] . "&Company=" . $row["Company"] . "\">"
-						                 . $row["Last_Name"] . ", "
-   						                 . $row["First_Name"] . ", "
-										 . $row["SIN"] . "</option>";
+					case 'ftEmployee':
+						$queryString .= "FT_Display ";
+						break;
+					case 'ptEmployee':
+						$queryString .= "PT_Display ";
+						break;
+					case 'sEmployee':
+						$queryString .= "SN_Display ";
+						break;								
 					}
 					
-					$returnString .= "</select><input type='submit' name='displayBtn' value='Display'><br>";
+					if($lastNameToSearchFor != "")
+					{
+						$queryString .= "WHERE Last_Name LIKE \"%$lastNameToSearchFor%\" ";
+					}
 					
-					$result->free();
+					if($firstNameToSearchFor != "")
+					{
+						if($lastNameToSearchFor != "")// check if the last name was not blank
+						{
+							$queryString .= "AND First_Name LIKE \"%$firstNameToSearchFor%\" ";
+						}
+						else// last name was blank
+						{
+							$queryString .= "WHERE First_Name LIKE \"%$firstNameToSearchFor%\" ";
+						}
+					}
+					
+					if($SINtoSearchFor != "")
+					{
+						if(($lastNameToSearchFor != "") || ($firstNameToSearchFor != ""))// check if either of the names were not blank
+						{
+							$queryString .= "AND SIN LIKE '%$SINtoSearchFor%' ";
+						}
+						else// both names were blank
+						{
+							$queryString .= "WHERE SIN LIKE '%$SINtoSearchFor%' ";
+						}
+					}
+					
+					if($userType == "general")// general users only have access to active employees
+					{
+						$queryString .= "AND Status='Active' ";
+					}
+					
+					$queryString .= "ORDER BY \"Last Name\";";
+					
+					//display lastname firstname and sin of employees found in list form.
+					//User will be able to click on them and display that employees info
+					$returnString = "<select name='employeeToDisplayDropDown'>
+											<option value=''></option>";
+											
+					if($result = $link->query($queryString))// make sure query was successful
+					{
+						while($row = $result->fetch_assoc())
+						{
+							$returnString .= "<option value=\"SINofEmployee=" . $row["SIN"] . "&Company=" . $row["Company"] . "\">"
+											 . $row["Last_Name"] . ", "
+											 . $row["First_Name"] . ", "
+											 . $row["SIN"] . "</option>";
+						}
+						
+						$returnString .= "</select><input type='submit' name='displayBtn' value='Display'><br>";
+						
+						$result->free();
+					}
+					else// query failed
+					{
+						$returnString = "There was an error while running the SQL script";
+	//$returnString .= $queryString;
+					}	
 				}
-				else// query failed
-				{
-					$returnString = "There was an error while running the SQL script";
-//$returnString .= $queryString;
-				}																			
+				else// CT employee
+				{					
+					$queryString = "SELECT Company, Business_Number FROM CT_Display ";
+					
+					if($lastNameToSearchFor != "" && $SINtoSearchFor != "")
+					{
+						$queryString .= "WHERE Company LIKE \"%$lastNameToSearchFor%\" AND SIN LIKE '%$SINtoSearchFor%' ";
+					}
+					else if($lastNameToSearchFor != "")
+					{
+						$queryString .= "WHERE Company LIKE \"%$lastNameToSearchFor%\" ";
+					}
+					else
+					{
+						$queryString .= "WHERE Business_Number LIKE '%$SINtoSearchFor%' ";
+					}
+					
+					$queryString .= "ORDER BY \"Last Name\";";
+					
+					$returnString = "<select name='employeeToDisplayDropDown'>
+											<option value=''></option>";
+											
+					if($result = $link->query($queryString))// make sure query was successful
+					{
+						while($row = $result->fetch_assoc())
+						{
+							$returnString .= "<option value=\"SINofEmployee=" . $row["Business_Number"] . "&Company=" . $row["Company"] . "\">"
+											 . $row["Company"] . ", "
+											 . $row["Business_Number"] . "</option>";
+						}
+						
+						$returnString .= "</select><input type='submit' name='displayBtn' value='Display'><br>";
+						
+						$result->free();
+					}
+					else// query failed
+					{
+						$returnString = "There was an error while running the SQL script";
+	//$returnString .= $queryString;
+	echo "$queryString";
+					}	
+					
+				}
 									
 				return $returnString;
 			}
@@ -356,7 +400,7 @@ Date: April 17, 2015
 						break;								
 					}
 
-					$queryString .= "WHERE SIN='$SINofEmployee' && Company=\"$Company\";";
+					$queryString .= "WHERE SIN=\"$SINofEmployee\" && Company=\"$Company\";";
 				
 				
 					if($result = $link->query($queryString))
@@ -438,7 +482,7 @@ Date: April 17, 2015
 				}
 				else// it's a contract employee
 				{
-					$queryString .= "CT_Display WHERE Business_Number='$SINofEmployee' && Company=\"$Company\";";
+					$queryString .= "CT_Display WHERE Business_Number=\"$SINofEmployee\" && Company=\"$Company\";";
 					
 					if($userType != "administrator")
 					{

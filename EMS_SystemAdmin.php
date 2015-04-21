@@ -29,6 +29,13 @@ Date: December 8, 2013
 			$userType = $_SESSION['userType'];
 			
 			$link = "";
+			
+			$userIdToAdd = "";
+			$userPasswordToAdd = "";
+			$userFirstNameToAdd = "";
+			$userLastNameToAdd = "";
+			$securityLevel = "";
+			$returnedString = "";
 		?>
 
 	</head>
@@ -117,24 +124,41 @@ Date: December 8, 2013
 				}// end 'if' statement	
 				
 				/* end Display Add company UI */
-				
+				if(isset($_POST['userIdToAdd']))
+				{
+					$userIdToAdd = $_POST['userIdToAdd'];
+				}
+				if(isset($_POST['userPasswordToAdd']))
+				{
+					$userPasswordToAdd = $_POST['userPasswordToAdd'];
+				}
+				if(isset($_POST['userFirstNameToAdd']))
+				{
+					$userFirstNameToAdd = $_POST['userFirstNameToAdd'];
+				}
+				if(isset($_POST['userLastNameToAdd']))
+				{
+					$userLastNameToAdd = $_POST['userLastNameToAdd'];
+				}
 				
 				/* Display Add User UI */
 				echo "<hr><h3>Add User</h3>";
 				echo "Enter the following information for the User to add. User ID and Password are required.";
 				echo "<br><br>First Name: ";
-				echo "<input type='text' name='userFirstNameToAdd'> ";
+				echo "<input type='text' name='userFirstNameToAdd' value=\"$userFirstNameToAdd\"> ";
 				echo " &nbsp&nbsp Last Name: ";
-				echo "<input type='text' name='userLastNameToAdd'> ";
+				echo "<input type='text' name='userLastNameToAdd' value=\"$userLastNameToAdd\"> ";
 				echo "<br><br> &nbsp&nbsp&nbsp&nbsp User ID: ";
-				echo "<input type='text' name='userIdToAdd'> ";
+				echo "<input type='text' name='userIdToAdd' value=\"$userIdToAdd\"'> ";
 				echo " &nbsp&nbsp&nbsp&nbsp Password: ";
-				echo "<input type='password' name='userPasswordToAdd'> ";
+				echo "<input type='password' name='userPasswordToAdd' value=\"$userPasswordToAdd\"> ";
 				echo "<br><br>Select the security level: <select name='securityLevelDropDown'>
 								<option value='2'>General</option>
 								<option value='1'>Administrator</option>
 							  </select>";
 				echo "&nbsp&nbsp<input type='submit' name='addUserBtn' value='Add'><br>";
+				
+				
 				
 				if(isset($_POST['addUserBtn']))
 				{
@@ -187,7 +211,7 @@ Date: December 8, 2013
 				
 				/* Display Audit Table UI */
 				echo "<hr><h3>Audit Table</h3>";
-				
+				echo "Unfortunately this functionality is not available. Sorry for the inconvenience.";
 				
 				/* end Display Audit Table UI */
 				
@@ -295,6 +319,8 @@ Date: December 8, 2013
 					$returnString = "There was an error attempting to enter the user into the database.";
 //$returnString = $queryString;
 				}	
+				
+				echo "$queryString";
 			
 				return $returnString;
 			}
