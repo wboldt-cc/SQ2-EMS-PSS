@@ -295,7 +295,7 @@ CREATE TABLE Inactive
 
 
 
-
+/*
 CREATE TABLE Inactive
 (
 	f_name varchar(50),
@@ -303,7 +303,7 @@ CREATE TABLE Inactive
     date_temrinated date,
     emp_type varchar(15),
     reason varchar(50)
-);
+);*/
 
 /* THE FOLLOWING IS NOT RUNNING 
 INSERT INTO Inactive
