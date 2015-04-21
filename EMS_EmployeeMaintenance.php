@@ -56,6 +56,7 @@ Date: December 8, 2013
 			{
 				$employeeType = $_POST['employeeTypeDropdown'];
 				$lastName = $_POST['lastName'];
+				$company = $_POST['company'];
 				
 				
 				if($employeeType == "ftEmployee")
@@ -339,6 +340,10 @@ Date: December 8, 2013
 						"<h3>Business Information</h3>" +
 					"<table>" +
 						"<tr>" +
+							"<th align='left'>Business:</th>" +
+							"<td><input type='text' name='company' value=\"<?php echo $company; ?>\"></td>" +
+						"</tr>" +
+						"<tr>" +
 							"<th align='left'>Date Of Hire:</th>" +
 							"<td><input type='date' name='doh' value='<?php echo $dateOfHire; ?>' min='1940-01-01' max='<?php date_default_timezone_set("EST"); echo date('Y-m-d'); ?>'></td>" +
 						"</tr>" +
@@ -381,6 +386,10 @@ Date: December 8, 2013
 					"</table>" +
 						"<h3>Business Information</h3>" +
 					"<table>" +
+						"<tr>" +
+							"<th align='left'>Business:</th>" +
+							"<td><input type='text' name='company' value=\"<?php echo $company; ?>\"></td>" +
+						"</tr>" +
 						"<tr>" +
 							"<th align='left'>Date Of Hire:</th>" +
 							"<td><input type='date' name='doh' value='<?php echo $dateOfHire; ?>' min='1940-01-01' max='<?php date_default_timezone_set("EST"); echo date('Y-m-d'); ?>'></td>" +
@@ -425,6 +434,10 @@ Date: December 8, 2013
 						"<h3>Business Information</h3>" +
 					"<table>" +
 						"<tr>" +
+							"<th align='left'>Business:</th>" +
+							"<td><input type='text' name='company' value=\"<?php echo $company; ?>\"></td>" +
+						"</tr>" +
+						"<tr>" +
 							"<th align='left'>Season:</th>" +
 							"<td><input type='text' value='<?php echo $season; ?>' name='season'></td>" +
 						"</tr>" +
@@ -464,6 +477,10 @@ Date: December 8, 2013
 						"<h3>Business Information</h3>" +
 					"<table>" +
 						"<tr>" +
+							"<th align='left'>Business:</th>" +
+							"<td><input type='text' name='company' value=\"<?php echo $company; ?>\"></td>" +
+						"</tr>" +
+						"<tr>" +
 							"<th align='left'>Contract Start Date:</th>" +
 							"<td><input type='date' name='doh' value='<?php echo $contractStartDate; ?>' min='1940-01-01' max='<?php date_default_timezone_set("EST"); echo date('Y-m-d'); ?>'></td>" +
 						"</tr>" +
@@ -501,14 +518,17 @@ Date: December 8, 2013
 					if($_POST['employeeTypeDropdown'] == 'ftEmployee')
 					{					
 						$insertQuery = "INSERT INTO Person (p_firstname, p_lastname, si_number, date_of_birth)";
-						$insertQuery .= "VALUES ('".  $firstName . "', '".  $lastName ."', ".  $SIN .", '".  $dateOfBirth ."');";
+						$insertQuery .= " VALUES ('".  $firstName . "', '".  $lastName ."', ".  $SIN .", '".  $dateOfBirth ."');";
 
 						$insertQuery .= "INSERT INTO Employee (emp_id, person_id)";
-						$insertQuery .= "VALUES (LAST_INSERT_ID(), LAST_INSERT_ID());";
+						$insertQuery .= " VALUES (LAST_INSERT_ID(), LAST_INSERT_ID());";
 
 						$insertQuery .= "INSERT INTO fulltime_employee";
-						$insertQuery .= "VALUES (LAST_INSERT_ID(), LAST_INSERT_ID(),'". $dateOfHire ."', '". $dateOfTermination ."', ". $reasonForTermination .",". $salary .", (SELECT status_id FROM Employee_Status WHERE status_type = 'Active'));";
-						
+						echo $dateOfBirth."</br>";
+						echo $dateOfHire."</br>";
+						echo $dateOfTermination;
+						$insertQuery .= " VALUES (LAST_INSERT_ID(), (SELECT companyID FROM Company WHERE companyName = \"". $company ."\"), '". $dateOfHire ."', '". $dateOfTermination ."', '". $reasonForTermination ."', ". $salary .", (SELECT status_id FROM Employee_Status WHERE status_type = 'Active'));";
+						//$insertQuery .= " VALUES (2, 1, '2000-01-01', null, null, 555, 1);";
 						$queryResult = $link->multi_query($insertQuery);
 						
 						if(!$queryResult)
