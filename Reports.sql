@@ -116,7 +116,7 @@ ON pt_company_id = companyID;
 
 UPDATE PT_Payroll
 SET worked_hours = hours_mon + hours_tues + hours_wed + hours_thurs + hours_fri + hours_sat + hours_sun,
-	weekly_pay = (weekly_pay * hours_worked),
+	weekly_pay = (weekly_pay * worked_hours),
 	notes = CASE
 	WHEN worked_hours > 40 THEN (worked_hours - 40)
     ELSE ''
