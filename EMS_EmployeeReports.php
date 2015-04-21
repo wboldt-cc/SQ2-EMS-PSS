@@ -118,6 +118,9 @@ Date: December 8, 2013
 						$whwReportSelected = "selected";
 						break;
 					case "pReport":
+						//echo "1";
+						turnOffSafeUpdates($link);
+						//echo "3";
 						$returnedString = generate_ftPayrollTable($link);
 						$returnedString .= generate_ptPayrollTable($link);
 						$returnedString .= generate_snPayrollTable($link);
@@ -125,6 +128,7 @@ Date: December 8, 2013
 						{							
 							$returnedString .= generate_ctPayrollTable($link);
 						}
+						turnOnSafeUpdates($link);
 						
 						if($returnedString != "")// check if there was an error while generating the tables
 						{
@@ -597,7 +601,7 @@ Date: December 8, 2013
 						{
 							$queryString = 	"UPDATE PT_Payroll
 											SET worked_hours = hours_mon + hours_tues + hours_wed + hours_thurs + hours_fri + hours_sat + hours_sun,
-												weekly_pay = (weekly_pay * hours_worked),
+												weekly_pay = (weekly_pay * worked_hours),
 												notes = CASE
 												WHEN worked_hours > 40 THEN (worked_hours - 40)
 												ELSE ''
@@ -635,30 +639,30 @@ Date: December 8, 2013
 				else// previous query succeeded
 				{
 					$queryString = "CREATE TABLE SN_Payroll
-									(
-										full_name varchar(50),
-										company_id varchar(50),
-										si_num int,
-										worked_hours float,
-										hours_mon float,
-										hours_tues float,
-										hours_wed float,
-										hours_thurs float,
-										hours_fri float,
-										hours_sat float,
-										hours_sun float,
-										pieces_mon float,
-										pieces_tues float,
-										pieces_wed float,
-										pieces_thurs float,
-										pieces_fri float,
-										pieces_sat float,
-										pieces_sun float,
-										weekly_pieces float,
-										weekly_pay float,
-										pay_date date,
-										notes varchar(100)
-									);";
+(
+	full_name varchar(50),
+    company_id varchar(50),
+    si_num int,
+    worked_hours float,
+    hours_mon float,
+    hours_tues float,
+    hours_wed float,
+    hours_thurs float,
+    hours_fri float,
+    hours_sat float,
+    hours_sun float,
+    pieces_mon float,
+    pieces_tues float,
+    pieces_wed float,
+    pieces_thurs float,
+    pieces_fri float,
+    pieces_sat float,
+    pieces_sun float,
+    weekly_pieces float,
+    weekly_pay float,
+    pay_date date,
+    notes varchar(100)
+);";
 								
 					if(!$link->query($queryString))
 					{
@@ -667,12 +671,12 @@ Date: December 8, 2013
 					else// previous query succeeded
 					{
 						$queryString = "INSERT INTO SN_payroll (full_name, company_id, si_num, hours_mon, hours_tues, hours_wed, hours_thurs, hours_fri, hours_sat, hours_sun, pieces_mon, pieces_tues, pieces_wed, pieces_thurs, pieces_fri, pieces_sat, pieces_sun, weekly_pay, pay_date)
-										SELECT CONCAT(p_lastname, ', ', p_firstname), companyName, si_number, mon_hours, tues_hours, wed_hours, thurs_hours, fri_hours, sat_hours, sun_hours, piece_pay, pay_period_start_date
-										FROM SN_View
-										JOIN time_cards
-										ON (sn_employee_id = tc_employee_id) AND (sn_company_id = tc_company_id)
-										JOIN Company
-										ON sn_company_id = companyID;";
+SELECT CONCAT(p_lastname, ', ', p_firstname), companyName, si_number, mon_hours, tues_hours, wed_hours, thurs_hours, fri_hours, sat_hours, sun_hours, mon_pieces, tues_pieces, wed_pieces, thurs_pieces, fri_pieces, sat_pieces, sun_pieces, piece_pay, pay_period_start_date
+FROM SN_View
+JOIN time_cards
+ON (sn_employee_id = tc_employee_id) AND (sn_company_id = tc_company_id) AND (current_status = 1)
+JOIN Company
+ON sn_company_id = companyID;";
 								
 						if(!$link->query($queryString))
 						{
@@ -681,15 +685,15 @@ Date: December 8, 2013
 						else// previous query succeeded
 						{
 							$queryString = 	"UPDATE SN_Payroll
-											SET weekly_pieces = pieces_mon + pieces_tues + pieces_wed + pieces_thurs + pieces_fri + pieces_sat + pieces_sun,
-												worked_hours = hours_mon + hours_tues + hours_wed + hours_thurs + hours_fri + hours_sat + hours_sun,
-												weekly_pay = weekly_pay * weekly_pieces,
-												weekly_pay = CASE
-												WHEN worked_hours > 40 THEN weekly_pay + 150
-												END,
-												notes = case
-												WHEN weekly_pieces = MAX(weekly_pieces) THEN 'Most productive'
-												END;";	
+SET weekly_pieces = (pieces_mon + pieces_tues + pieces_wed + pieces_thurs + pieces_fri + pieces_sat + pieces_sun),
+	worked_hours = (hours_mon + hours_tues + hours_wed + hours_thurs + hours_fri + hours_sat + hours_sun),
+    weekly_pay = weekly_pay * weekly_pieces,
+    weekly_pay = CASE
+    WHEN worked_hours > 40 THEN (weekly_pay + 150)
+    END,
+	notes = CASE
+    WHEN weekly_pieces = (SELECT max_pieces FROM((SELECT MAX(weekly_pieces) AS max_pieces FROM SN_Payroll) AS a)) THEN 'Most productive'
+    END;";	
 												
 							if(!$link->query($queryString))
 							{
@@ -723,15 +727,17 @@ Date: December 8, 2013
 				else// previous query succeeded
 				{
 					$queryString = "CREATE TABLE CT_Payroll
-									(
-										full_name varchar(50),
-										company_id varchar(50),
-										si_num int,
-										worked_hours varchar(10),
-										weekly_pay float,
-										pay_date date,
-										notes varchar(100)
-									);";
+(
+	full_name varchar(50),
+    company_id varchar(50),
+    si_num int,
+    contract_start date,
+    contract_end date,
+    worked_hours varchar(10),
+    weekly_pay float,
+    pay_date date,
+    notes varchar(100)
+);";
 								
 					if(!$link->query($queryString))
 					{
@@ -739,13 +745,13 @@ Date: December 8, 2013
 					}
 					else// previous query succeeded
 					{
-						$queryString = "INSERT INTO CT_payroll (full_name, company_id, si_num, worked_hours, weekly_pay, pay_date)
-										SELECT p_lastname, companyName, si_number, '--', fixedContractAmount , pay_period_start_date
-										FROM CT_View
-										JOIN time_cards
-										ON (ct_employee_id = tc_employee_id) AND (ct_company_id = tc_company_id)
-										JOIN Company
-										ON ct_company_id = companyID;";
+						$queryString = "INSERT INTO CT_payroll (full_name, company_id, si_num, contract_start, contract_end, worked_hours, weekly_pay, pay_date)
+SELECT p_lastname, companyName, si_number, contract_Start_date, contract_stop_date, '--', fixedContractAmount , pay_period_start_date
+FROM CT_View
+JOIN time_cards
+ON (ct_employee_id = tc_employee_id) AND (ct_company_id = tc_company_id) AND (current_status = 1)
+JOIN Company
+ON ct_company_id = companyID;";
 								
 						if(!$link->query($queryString))
 						{
@@ -754,8 +760,8 @@ Date: December 8, 2013
 						else// previous query succeeded
 						{
 							$queryString = 	"UPDATE CT_Payroll
-											SET weekly_pay = (weekly_pay * 7 / DATEDIFF(contract_stop_date, contract_start_date)),
-												notes = DATEDIFF(contract_Stop_date, CURDATE()) + ' days remaining';";	
+SET weekly_pay = (weekly_pay * 7 / DATEDIFF(contract_end, contract_start)),
+	notes = DATEDIFF(contract_end, CURDATE()) + ' days remaining';";	
 												
 							if(!$link->query($queryString))
 							{
@@ -779,7 +785,7 @@ Date: December 8, 2013
 			 */
 			function generate_pReport($link, $companyName, $userType)
 			{
-				$returnString = "<b>Payroll Report<b> ($companyName)<br>";
+				$returnString = "<b>Payroll Report</b> ($companyName)<br>";
 				//$errorOccured = "false";
 				$tableName = "";
 				$queryString = "";
@@ -794,19 +800,19 @@ Date: December 8, 2013
 					switch($i)
 					{
 					case 1:
-						$queryString = "SELECT * FROM FT_Payroll WHERE companyName=$companyName;";
+						$queryString = "SELECT * FROM FT_Payroll WHERE company_id=\"$companyName\";";
 						$tableName = "FullTime";
 						break;
 					case 2:
-						$queryString = "SELECT * FROM PT_Payroll WHERE companyName=$companyName;";
+						$queryString = "SELECT * FROM PT_Payroll WHERE company_id=\"$companyName\";";
 						$tableName = "PartTime";
 						break;
 					case 3:
-						$queryString = "SELECT * FROM SN_Payroll WHERE companyName=$companyName;";
+						$queryString = "SELECT * FROM SN_Payroll WHERE company_id=\"$companyName\";";
 						$tableName = "Seasonal";
 						break;
 					case 4:
-						$queryString = "SELECT * FROM CT_Payroll WHERE companyName=$companyName;";
+						$queryString = "SELECT * FROM CT_Payroll WHERE company_id=\"$companyName\";";
 						$tableName = "Contract";
 						break;
 					}
@@ -842,7 +848,7 @@ Date: December 8, 2013
 					}
 					else// query failed
 					{
-						$returnString = "<br>FAILED while trying to generate the $tableName Payroll report. Sorry for the inconvenience";
+						$returnString .= "<br>FAILED while trying to generate the $tableName Payroll report. Sorry for the inconvenience";
 					}
 										
 				
@@ -1051,6 +1057,21 @@ Date: December 8, 2013
 				}
 				
 				return $returnString;
+			}
+			
+			
+			/* this function turns OFF safe update mode in the database */
+			function turnOffSafeUpdates($link)
+			{	
+				$queryString = "SET SQL_SAFE_UPDATES=0;";
+				$link->query($queryString);
+			}
+			
+			/* this function turns ON safe update mode in the database */
+			function turnOnSafeUpdates($link)
+			{	
+				$queryString = "SET SQL_SAFE_UPDATES=1;";
+				$link->query($queryString);
 			}
 		?>	
 

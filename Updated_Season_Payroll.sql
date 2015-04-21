@@ -184,7 +184,7 @@ CREATE TABLE CT_Payroll
     notes varchar(100)
 );
 
-INSERT INTO CT_payroll (full_name, company_id, si_num, worked_hours, weekly_pay, pay_date)
+INSERT INTO CT_payroll (full_name, company_id, si_num, contract_start, contract_end, worked_hours, weekly_pay, pay_date)
 SELECT p_lastname, companyName, si_number, contract_Start_date, contract_stop_date, '--', fixedContractAmount , pay_period_start_date
 FROM CT_View
 JOIN time_cards
@@ -193,8 +193,8 @@ JOIN Company
 ON ct_company_id = companyID;
 
 UPDATE CT_Payroll
-SET weekly_pay = (weekly_pay * 7 / DATEDIFF(contract_stop_date, contract_start_date)),
-	notes = DATEDIFF(contract_Stop_date, CURDATE()) + ' days remaining';
+SET weekly_pay = (weekly_pay * 7 / DATEDIFF(contract_end, contract_start)),
+	notes = DATEDIFF(contract_end, CURDATE()) + ' days remaining';
     
     
     
