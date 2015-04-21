@@ -185,7 +185,12 @@ Date: December 8, 2013
 				
 				/* end Display Add User UI */
 				
-				echo "<hr>";
+				/* Display Audit Table UI */
+				echo "<hr><h3>Audit Table</h3>";
+				
+				
+				/* end Display Audit Table UI */
+				
 				
 			}
 			else// user is not an administrator
