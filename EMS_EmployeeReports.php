@@ -153,13 +153,18 @@ Date: December 8, 2013
 						break;
 					case "aeReport":
 						turnOffSafeUpdates($link);
-						//echo "3";
 						$returnedString = generate_ftPayrollTable($link);
 						$returnedString .= generate_ptPayrollTable($link);
 						$returnedString .= generate_snPayrollTable($link);
+						
+						$returnedString = generate_ftActiveTable($link);
+						$returnedString .= generate_ptActiveTable($link);
+						$returnedString .= generate_snActiveTable($link);
+						
 						if($userType == "administrator")
 						{							
 							$returnedString .= generate_ctPayrollTable($link);
+							$returnedString .= generate_ctActiveTable($link);
 						}
 						turnOnSafeUpdates($link);
 						
@@ -228,9 +233,17 @@ Date: December 8, 2013
 			}
 			
 			echo "<form method='post'>		
-					What is the name of the company to display: &nbsp&nbsp&nbsp&nbsp&nbsp
-					<input type='text' name='companyName' value=\"$companyName\"><br><br>
-					Which type of report would you like to display? &nbsp
+					What is the name of the company to display: &nbsp&nbsp&nbsp&nbsp&nbsp";
+					
+//<input type='text' name='companyName' value=\"$companyName\"><br><br>
+			
+			$link = mysqli_connect($serverName, $userName, $password, $databaseName);// connect to the database
+		
+			displayCompanyDropDown($link, $companyName);		
+			
+			$link->close();
+			
+			echo "<br>Which type of report would you like to display? &nbsp
 						<select name='reportToGenerateDropDown'>
 										<option value=''></option>
 										<option value='sReport' $sReportSelected>Seniority</option>
@@ -914,6 +927,212 @@ Date: December 8, 2013
 				return $returnString;
 			}
 			
+			
+			/*
+			 * Function: 
+			 * Description: This function generates the ___ Report and returns it as a string
+			 * Parameters: The link to the database connection and the name of the company
+			 *             that the report should be generated for
+			 * Return: The ___ Report as a string
+			 */
+			function generate_ftActiveTable($link)
+			{
+				$returnString = "";
+								
+				$queryString = "DROP TABLE IF EXISTS FT_active;";
+				if(!$link->query($queryString))
+				{
+					$returnString = "There was a problem dropping the FT_active Table in the Database.";
+				}
+				else// previous query succeeded
+				{
+					$queryString = "CREATE TABLE FT_active
+									(
+										f_name varchar(100),
+										doh date,
+										av_hours float,
+										company_name varchar(50)
+									);";
+								
+					if(!$link->query($queryString))
+					{
+						$returnString = "There was a problem creating the FT_active Table in the Database.";
+					}
+					else// previous query succeeded
+					{
+						$queryString = "INSERT INTO FT_active
+										SELECT CONCAT(p_lastname, ', ', p_firstname) AS fname, ft_date_of_hire, AVG(worked_hours), company_id
+										FROM FT_View
+										JOIN FT_Payroll
+										ON (FT_view.si_number = FT_Payroll.si_num) AND (FT_View.ft_company_id = (SELECT companyID FROM Company WHERE company_id = companyName))
+										GROUP BY fname, ft_date_of_hire, company_id;";
+								
+						if(!$link->query($queryString))
+						{
+							$returnString = "There was a problem inserting into the FT_active Table.";
+						}
+						
+					}				
+
+				}															
+				
+				return $returnString;
+			}	
+			
+			/*
+			 * Function: 
+			 * Description: This function generates the ___ Report and returns it as a string
+			 * Parameters: The link to the database connection and the name of the company
+			 *             that the report should be generated for
+			 * Return: The ___ Report as a string
+			 */
+			function generate_ptActiveTable($link)
+			{
+				$returnString = "";
+								
+				$queryString = "DROP TABLE IF EXISTS PT_active;";
+				if(!$link->query($queryString))
+				{
+					$returnString = "There was a problem dropping the PT_active Table in the Database.";
+				}
+				else// previous query succeeded
+				{
+					$queryString = "CREATE TABLE PT_active
+									(
+										f_name varchar(100),
+										doh date,
+										av_hours float,
+										company_name varchar(50)
+									);";
+								
+					if(!$link->query($queryString))
+					{
+						$returnString = "There was a problem creating the PT_active Table in the Database.";
+					}
+					else// previous query succeeded
+					{
+						$queryString = "INSERT INTO PT_active
+										SELECT CONCAT(p_lastname, ', ', p_firstname) AS fname, pt_date_of_hire, AVG(worked_hours), company_id
+										FROM PT_View
+										JOIN PT_Payroll
+										ON (PT_view.si_number = PT_Payroll.si_num) AND (PT_View.Pt_company_id = (SELECT companyID FROM Company WHERE company_id = companyName))
+										GROUP BY fname, pt_date_of_hire, company_id;";
+								
+						if(!$link->query($queryString))
+						{
+							$returnString = "There was a problem inserting into the PT_active Table.";
+						}
+						
+					}				
+
+				}															
+				
+				return $returnString;
+			}
+			
+			/*
+			 * Function: 
+			 * Description: This function generates the ___ Report and returns it as a string
+			 * Parameters: The link to the database connection and the name of the company
+			 *             that the report should be generated for
+			 * Return: The ___ Report as a string
+			 */
+			function generate_ctActiveTable($link)
+			{
+				$returnString = "";
+								
+				$queryString = "DROP TABLE IF EXISTS CT_active;";
+				if(!$link->query($queryString))
+				{
+					$returnString = "There was a problem dropping the CT_active Table in the Database.";
+				}
+				else// previous query succeeded
+				{
+					$queryString = "CREATE TABLE CT_active
+									(
+										f_name varchar(100),
+										doh date,
+										av_hours float,
+										company_name varchar(50)
+									);";
+								
+					if(!$link->query($queryString))
+					{
+						$returnString = "There was a problem creating the CT_active Table in the Database.";
+					}
+					else// previous query succeeded
+					{
+						$queryString = "INSERT INTO CT_active
+										SELECT p_lastname AS fname, contract_start_date, '--', company_id
+										FROM CT_View
+										JOIN CT_Payroll
+										ON (CT_view.si_number = CT_Payroll.si_num) AND (CT_View.ct_company_id = (SELECT companyID FROM Company WHERE company_id = companyName));";
+								
+						if(!$link->query($queryString))
+						{
+							$returnString = "There was a problem inserting into the CT_active Table.";
+						}
+						
+					}				
+
+				}															
+				
+				return $returnString;
+			}
+						
+			/*
+			 * Function: 
+			 * Description: This function generates the ___ Report and returns it as a string
+			 * Parameters: The link to the database connection and the name of the company
+			 *             that the report should be generated for
+			 * Return: The ___ Report as a string
+			 */
+			function generate_snActiveTable($link)
+			{
+				$returnString = "";
+								
+				$queryString = "DROP TABLE IF EXISTS SN_active;";
+				if(!$link->query($queryString))
+				{
+					$returnString = "There was a problem dropping the SN_active Table in the Database.";
+				}
+				else// previous query succeeded
+				{
+					$queryString = "CREATE TABLE SN_active
+									(
+										f_name varchar(100),
+										doh date,
+										av_hours float,
+										company_name varchar(50)
+									);";
+								
+					if(!$link->query($queryString))
+					{
+						$returnString = "There was a problem creating the SN_active Table in the Database.";
+					}
+					else// previous query succeeded
+					{
+						$queryString = "INSERT INTO SN_active
+										SELECT CONCAT(p_lastname, ', ', p_firstname) AS fname, CONCAT(season_year, season_start_date) as season_date, AVG(worked_hours), company_id
+										FROM SN_View
+										JOIN SN_Payroll
+										ON (SN_view.si_number = SN_Payroll.si_num) AND (SN_View.sn_company_id = (SELECT companyID FROM Company WHERE company_id = companyName))
+										Join Seasons
+										ON season = season_type
+										GROUP BY fname, season_date, company_id;";
+								
+						if(!$link->query($queryString))
+						{
+							$returnString = "There was a problem inserting into the CT_active Table.";
+						}
+						
+					}				
+
+				}															
+				
+				return $returnString;
+			}
+			
 			/*
 			 * Function: 
 			 * Description: This function generates the ___ Report and returns it as a string
@@ -937,19 +1156,19 @@ Date: December 8, 2013
 					switch($i)
 					{
 					case 1:
-						$queryString = "SELECT * FROM FT_active WHERE company_id=\"$companyName\";";
+						$queryString = "SELECT * FROM FT_active WHERE company_name=\"$companyName\";";
 						$tableName = "FullTime";
 						break;
 					case 2:
-						$queryString = "SELECT * FROM PT_active WHERE company_id=\"$companyName\";";
+						$queryString = "SELECT * FROM PT_active WHERE company_name=\"$companyName\";";
 						$tableName = "PartTime";
 						break;
 					case 3:
-						$queryString = "SELECT * FROM SN_active WHERE company_id=\"$companyName\";";
+						$queryString = "SELECT * FROM SN_active WHERE company_name=\"$companyName\";";
 						$tableName = "Seasonal";
 						break;
 					case 4:
-						$queryString = "SELECT * FROM CT_active WHERE company_id=\"$companyName\";";
+						$queryString = "SELECT * FROM CT_active WHERE company_name=\"$companyName\";";
 						$tableName = "Contract";
 						break;
 					}
@@ -1084,6 +1303,43 @@ Date: December 8, 2013
 				$queryString = "SET SQL_SAFE_UPDATES=1;";
 				$link->query($queryString);
 			}
+			
+			
+			function displayCompanyDropDown($link, $companyName)
+			{
+			$stringToEcho = "";
+			$queryString = "SELECT companyName FROM Company";
+			
+				if($result = $link->query($queryString))
+				{
+					/* add the headings for each column */
+					$stringToEcho .= "<select name='companyName'>
+										<option value=''></option>";
+					
+					while($row = $result->fetch_assoc())
+					{
+						$stringToEcho .= "<option value=\"" . $row["companyName"] . "\"";
+						
+						if($companyName == $row["companyName"])
+						{
+							$stringToEcho .= " selected ";
+						}
+						$stringToEcho .= ">" . $row["companyName"] . "</option>";
+					}	
+					
+					$stringToEcho .= "</select>";				
+					
+					$result->free();
+				}
+				else// query failed
+				{
+					$stringToEcho .= "No companies currently exist.";
+				}
+				
+				echo "$stringToEcho";
+			}
+			
+			
 		?>	
 
 	</body>

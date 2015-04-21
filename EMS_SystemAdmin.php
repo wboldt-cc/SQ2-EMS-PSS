@@ -224,7 +224,7 @@ Date: December 8, 2013
 			function addCompany($companyToAdd, $link)
 			{
 				$returnString = "";				
-				$queryString = "INSERT INTO Company (companyName) VALUES('$companyToAdd');";							
+				$queryString = "INSERT INTO Company (companyName) VALUES(\"$companyToAdd\");";							
 				
 				if($result = $link->query($queryString))// make sure query was successful
 				{
