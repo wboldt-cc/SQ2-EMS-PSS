@@ -185,7 +185,7 @@ CREATE TABLE CT_Payroll
     notes varchar(100)
 );
 
-INSERT INTO CT_payroll (full_name, company_id, si_num, worked_hours, weekly_pay, pay_date)
+INSERT INTO CT_payroll (full_name, company_id, si_num, worked_hours, weekly_pay, pay_date, contract_Start, contract_end)
 SELECT p_lastname, companyName, si_number, contract_Start_date, contract_stop_date, '--', fixedContractAmount , pay_period_start_date
 FROM CT_View
 JOIN time_cards
