@@ -211,7 +211,7 @@ CREATE VIEW SN_hours AS
 SELECT full_name, company_id, si_num, worked_hours
 FROM SN_Payroll;
 
-
+/*
 CREATE VIEW FT_hours AS
 SELECT CONCAT(p_lastname, ', ', p_firstname) AS 'Name', ft_company_id AS 'Company', si_number AS 'SIN', hours_worked AS 'Hours', pay_period_start_date AS 'Period'
 FROM FT_View
@@ -229,6 +229,6 @@ SELECT CONCAT(p_lastname, ', ', p_firstname) AS 'Name', sn_company_id AS 'Compan
 FROM SN_View
 JOIN Time_Cards
 ON (sn_employee_id = tc_employee_id) AND (sn_company_id = tc_company_id);
-
+*/
 
 /* Active Employees */
