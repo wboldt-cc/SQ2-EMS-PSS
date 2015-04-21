@@ -35,6 +35,7 @@ Date: December 8, 2013
 			$companyName = "";	
 			$generatedReport = "";			
 			
+			date_default_timezone_set('America/Toronto');
 		?>
 		
 	</head>
@@ -108,13 +109,21 @@ Date: December 8, 2013
 							else
 							{
 								$generatedReport = generate_sReport($link, $companyName);
+								$generatedReport .= "Date Generated: " . date('Y-m-d');
 							}
 							
 						}
 						$sReportSelected = "selected";
 						break;
 					case "whwReport":
+						turnOffSafeUpdates($link);
+						$returnedString = generate_ftPayrollTable($link);
+						$returnedString .= generate_ptPayrollTable($link);
+						$returnedString .= generate_snPayrollTable($link);
+						turnOnSafeUpdates($link);						
+						
 						$generatedReport .= generate_whwReport($link, $companyName);
+						$generatedReport .= "For Week Ending: " . date('Y-m-d');
 						$whwReportSelected = "selected";
 						break;
 					case "pReport":
@@ -138,16 +147,36 @@ Date: December 8, 2013
 						{					
 							$generatedReport .= generate_pReport($link, $companyName, $userType);
 							
-							$generatedReport .= "For Week Ending: WEEK";
+							$generatedReport .= "For Week Ending: " . date('Y-m-d');
 							$pReportSelected = "selected";
 						}
 						break;
 					case "aeReport":
-						$generatedReport .= generate_aeReport($link, $companyName);
-						$aeReportSelected = "selected";
+						turnOffSafeUpdates($link);
+						//echo "3";
+						$returnedString = generate_ftPayrollTable($link);
+						$returnedString .= generate_ptPayrollTable($link);
+						$returnedString .= generate_snPayrollTable($link);
+						if($userType == "administrator")
+						{							
+							$returnedString .= generate_ctPayrollTable($link);
+						}
+						turnOnSafeUpdates($link);
+						
+						if($returnedString != "")// check if there was an error while generating the tables
+						{
+							echo "$returnedString";
+						}
+						else
+						{
+							$generatedReport .= generate_aeReport($link, $companyName, $userType);
+							$generatedReport .= "Date Generated: " . date('Y-m-d');
+							$aeReportSelected = "selected";
+						}
 						break;
 					case "ieReport":
-						$generatedReport .= generate_ieReport($link, $companyName);
+						$generatedReport .= generate_ieReport($link, $companyName, $userType);
+						$generatedReport .= "Date Generated: " . date('Y-m-d');
 						$ieReportSelected = "selected";
 						break;
 					}
@@ -323,9 +352,9 @@ Date: December 8, 2013
 			 */
 			function generate_sReport($link, $companyName)
 			{
-				$returnString = "Seniority Report for: <b>$companyName</b><br><br>";
+				$returnString = "<b>Seniority Report</b> ($companyName)<br><br>";
 								
-				$queryString = "SELECT * FROM seniority_report WHERE company_name=\"$companyName\";";
+				$queryString = "SELECT * FROM seniority_report WHERE company_name=\"$companyName\" ORDER BY length_of_service DESC;";
 				
 				if($result = $link->query($queryString))
 				{
@@ -384,7 +413,7 @@ Date: December 8, 2013
 
 					$returnString .= "</table>";
 					
-					$returnString .= "Date Generated: DATE";
+//$returnString .= "Date Generated: DATE";
 					
 					$result->free();
 				}
@@ -416,54 +445,64 @@ Date: December 8, 2013
 			 */
 			function generate_whwReport($link, $companyName)
 			{
-				$returnString = "Weekly Hours Worked Report ($companyName)<br>";
-				$queryString = "SELECT * FROM whwReport WHERE companyName=$companyName;";
-				
-				if($result = $link->query($queryString))
-				{
-					/* add the headings for each column */
-					$returnString .= "<table border='1'>
-									  <tr>
-										<th colspan='3'>FullTime</th>
-									  </tr>
-									  <tr>
-										<th>Employee Name</th>
-										<th>SIN</th>
-										<th>Hours</th>
-									  </tr>";
-					
-					while($row = $result->fetch_assoc())
+				$returnString = "<b>Weekly Hours Worked</b> ($companyName)<br><br>";
+				$queryString = "";
+				$tableName = "";
+								
+				for($i = 1; $i <= 3; $i++)
+				{				
+					switch($i)
 					{
-						$returnString .= "<tr>
-											<td>" . $row[""] . "</td>
-											<td>" . $row[""] . "</td>
-											<td>" . $row[""] . "</td>
-											<td>" . $row[""] . "</td>
-											<td>" . $row[""] . "</td>
-											<td>" . $row[""] . "</td>
-										  </tr>";
-													
-					}				
+					case 1:
+						$queryString = "SELECT * FROM FT_hours WHERE company_id=\"$companyName\";";
+						$tableName = "FullTime";
+						break;
+					case 2:
+						$queryString = "SELECT * FROM PT_hours WHERE company_id=\"$companyName\";";
+						$tableName = "PartTime";
+						break;
+					case 3:
+						$queryString = "SELECT * FROM SN_hours WHERE company_id=\"$companyName\";";
+						$tableName = "Seasonal";
+						break;
+//case 4:
+	//$queryString = "SELECT * FROM CT_Payroll WHERE company_id=\"$companyName\";";
+	//$tableName = "Contract";
+	//break;
+					}
 					
-					$returnString .= "</table>";
-					
-					$returnString .= "For Week Ending: WEEK";
-					
-					$result->free();
-				}
-				else// query failed
-				{
-					$returnString = "Could not generate the report. Sorry for the inconvenience";
-					$returnString .= "<table border='1'>
+					if($result = $link->query($queryString))
+					{
+						/* add the headings for each column */
+						$returnString .= "<table border='1'>
 									  <tr>
-										<th colspan='3'>FullTime</th>
+										<th colspan='3'>$tableName</th>
 									  </tr>
 									  <tr>
 										<th>Employee Name</th>
 										<th>SIN</th>
 										<th>Hours</th>
 									  </tr>";
-									  $returnString .= "</table>";
+						
+						while($row = $result->fetch_assoc())
+						{
+							$returnString .= "<tr>
+												<td>" . $row["full_name"] . "</td>
+												<td>" . $row["si_num"] . "</td>
+												<td>" . $row["worked_hours"] . "</td>
+											  </tr>";
+														
+						}	
+						
+						$returnString .= "</table><br><hr>";				
+						
+						$result->free();
+					}
+					else// query failed
+					{
+						$returnString .= "<br>FAILED while trying to generate the $tableName Weekly Hours Worked report. Sorry for the inconvenience";
+					}
+													
 				}
 				
 				return $returnString;
@@ -785,7 +824,7 @@ SET weekly_pay = (weekly_pay * 7 / DATEDIFF(contract_end, contract_start)),
 			 */
 			function generate_pReport($link, $companyName, $userType)
 			{
-				$returnString = "<b>Payroll Report</b> ($companyName)<br>";
+				$returnString = "<b>Payroll Report</b> ($companyName)<br><br>";
 				//$errorOccured = "false";
 				$tableName = "";
 				$queryString = "";
@@ -852,87 +891,7 @@ SET weekly_pay = (weekly_pay * 7 / DATEDIFF(contract_end, contract_start)),
 					}
 										
 				
-				} 
-											
-				
-				/*
-				$queryString = "SELECT * FROM PT_Payroll WHERE companyName=$companyName;";
-				
-				if($result = $link->query($queryString) && $errorOccured == "false")
-				{
-					/* add the headings for each column 
-					$returnString .= "<table border='1'>
-									  <tr>
-										<th colspan='4'>PartTime</th>
-									  </tr>
-									  <tr>
-										<th>Employee Name</th>
-										<th>Hours</th>
-										<th>Gross</th>
-										<th>Notes</th>
-									  </tr>";
-					
-					while($row = $result->fetch_assoc())
-					{
-						$returnString .= "<tr>
-											<td>" . $row["full_name"] . "</td>
-											<td>" . $row["worked_hours"] . "</td>
-											<td>" . $row["weekly_pay"] . "</td>
-											<td>" . $row["notes"] . "</td>
-										  </tr>";
-													
-					}	
-					
-					$returnString .= "</table>";
-					
-					
-					$result->free();
 				}
-				else// query failed
-				{
-					$errorOccured = "true";
-					$returnString = "Could not generate the FT_Payroll report. Sorry for the inconvenience";
-				}
-				
-				$queryString = "SELECT * FROM FT_Payroll WHERE companyName=$companyName;";
-				
-				if($result = $link->query($queryString))
-				{
-					/* add the headings for each column 
-					$returnString .= "<table border='1'>
-									  <tr>
-										<th colspan='4'>FullTime</th>
-									  </tr>
-									  <tr>
-										<th>Employee Name</th>
-										<th>Hours</th>
-										<th>Gross</th>
-										<th>Notes</th>
-									  </tr>";
-					
-					while($row = $result->fetch_assoc())
-					{
-						$returnString .= "<tr>
-											<td>" . $row["full_name"] . "</td>
-											<td>" . $row["worked_hours"] . "</td>
-											<td>" . $row["weekly_pay"] . "</td>
-											<td>" . $row["notes"] . "</td>
-										  </tr>";
-													
-					}	
-					
-					$returnString .= "</table>";
-					
-					
-					$result->free();
-				}
-				else// query failed
-				{
-					$errorOccured = "true";
-					$returnString = "Could not generate the FT_Payroll report. Sorry for the inconvenience";
-				}
-				*/
-//$returnString .= "For Week Ending: WEEK";
 					
 				return $returnString;
 			}
@@ -944,47 +903,43 @@ SET weekly_pay = (weekly_pay * 7 / DATEDIFF(contract_end, contract_start)),
 			 *             that the report should be generated for
 			 * Return: The ___ Report as a string
 			 */
-			function generate_aeReport($link, $companyName)
+			function generate_aeReport($link, $companyName, $userType)
 			{
-				$returnString = "Active Employment Report ($companyName)<br>";
-				$queryString = "SELECT * FROM aeReport WHERE companyName=$companyName;";
+				$returnString = "<b>Active Employment Report</b> ($companyName)<br><br>";
+				$queryString = "";
+				$tableName = "";
 				
-				if($result = $link->query($queryString))
+				for($i = 1; $i <= 4; $i++)
 				{
-					/* add the headings for each column */
-					$returnString .= "<table border='1'>
-									  <tr>
-										<th colspan='3'>FullTime</th>
-									  </tr>
-									  <tr>
-										<th>Employee Name</th>
-										<th>Date Of Hire</th>
-										<th>Avg. Hours</th>
-									  </tr>";
-					
-					while($row = $result->fetch_assoc())
+					if(($i == 4) && ($userType != 'administrator'))
 					{
-						$returnString .= "<tr>
-											<td>" . $row[""] . "</td>
-											<td>" . $row[""] . "</td>
-											<td>" . $row[""] . "</td>
-											<td>" . $row[""] . "</td>
-											<td>" . $row[""] . "</td>
-											<td>" . $row[""] . "</td>
-										  </tr>";
-													
-					}				
+						break;// don't want to include the contract employee report
+					}
 					
-					$returnString .= "</table>";
+					switch($i)
+					{
+					case 1:
+						$queryString = "SELECT * FROM FT_Payroll WHERE company_id=\"$companyName\";";
+						$tableName = "FullTime";
+						break;
+					case 2:
+						$queryString = "SELECT * FROM PT_Payroll WHERE company_id=\"$companyName\";";
+						$tableName = "PartTime";
+						break;
+					case 3:
+						$queryString = "SELECT * FROM SN_Payroll WHERE company_id=\"$companyName\";";
+						$tableName = "Seasonal";
+						break;
+					case 4:
+						$queryString = "SELECT * FROM CT_Payroll WHERE company_id=\"$companyName\";";
+						$tableName = "Contract";
+						break;
+					}
 					
-					$returnString .= "Date Generated: DATE";
-					
-					$result->free();
-				}
-				else// query failed
-				{
-					$returnString = "Could not generate the report. Sorry for the inconvenience";
-					$returnString .= "<table border='1'>
+					if($result = $link->query($queryString))
+					{
+						/* add the headings for each column */
+						$returnString .= "<table border='1'>
 									  <tr>
 										<th colspan='3'>FullTime</th>
 									  </tr>
@@ -993,7 +948,26 @@ SET weekly_pay = (weekly_pay * 7 / DATEDIFF(contract_end, contract_start)),
 										<th>Date Of Hire</th>
 										<th>Avg. Hours</th>
 									  </tr>";
-					$returnString .= "</table>";
+						
+						while($row = $result->fetch_assoc())
+						{
+							$returnString .= "<tr>
+												<td>" . $row["full_name"] . "</td>
+												<td>" . $row["worked_hours"] . "</td>
+												<td>" . $row["weekly_pay"] . "</td>
+											  </tr>";
+														
+						}	
+						
+						$returnString .= "</table><br><hr>";				
+						
+						$result->free();
+					}
+					else// query failed
+					{
+						$returnString .= "<br>FAILED while trying to generate the $tableName Active Employment report. Sorry for the inconvenience";
+					}
+					
 				}
 				
 				return $returnString;
@@ -1006,15 +980,43 @@ SET weekly_pay = (weekly_pay * 7 / DATEDIFF(contract_end, contract_start)),
 			 *             that the report should be generated for
 			 * Return: The ___ Report as a string
 			 */
-			function generate_ieReport($link, $companyName)
+			function generate_ieReport($link, $companyName, $userType)
 			{
-				$returnString = "Inactive Employment Report ($companyName)<br>";
-				$queryString = "SELECT * FROM sReport WHERE companyName=$companyName;";
+				$returnString = "<b>Inactive Employment Report</b> ($companyName)<br><br>";
+				$queryString = "";
+				$tableName = "";
 				
-				if($result = $link->query($queryString))
+				for($i = 1; $i <= 4; $i++)
 				{
-					/* add the headings for each column */
-					$returnString .= "<table border='1'>
+					if(($i == 4) && ($userType != 'administrator'))
+					{
+						break;// don't want to include the contract employee report
+					}
+					
+					switch($i)
+					{
+					case 1:
+						$queryString = "SELECT * FROM FT_Payroll WHERE company_id=\"$companyName\";";
+						$tableName = "FullTime";
+						break;
+					case 2:
+						$queryString = "SELECT * FROM PT_Payroll WHERE company_id=\"$companyName\";";
+						$tableName = "PartTime";
+						break;
+					case 3:
+						$queryString = "SELECT * FROM SN_Payroll WHERE company_id=\"$companyName\";";
+						$tableName = "Seasonal";
+						break;
+					case 4:
+						$queryString = "SELECT * FROM CT_Payroll WHERE company_id=\"$companyName\";";
+						$tableName = "Contract";
+						break;
+					}
+					
+					if($result = $link->query($queryString))
+					{
+						/* add the headings for each column */
+						$returnString .= "<table border='1'>
 									  <tr>
 										<th>Employee Name</th>
 										<th>Hired</th>
@@ -1022,10 +1024,10 @@ SET weekly_pay = (weekly_pay * 7 / DATEDIFF(contract_end, contract_start)),
 										<th>Type</th>
 										<th>Reason For Leaving</th>
 									  </tr>";
-					
-					while($row = $result->fetch_assoc())
-					{
-						$returnString .= "<tr>
+						
+						while($row = $result->fetch_assoc())
+						{
+							$returnString .= "<tr>
 											<td>" . $row[""] . "</td>
 											<td>" . $row[""] . "</td>
 											<td>" . $row[""] . "</td>
@@ -1033,27 +1035,18 @@ SET weekly_pay = (weekly_pay * 7 / DATEDIFF(contract_end, contract_start)),
 											<td>" . $row[""] . "</td>
 											<td>" . $row[""] . "</td>
 										  </tr>";
-													
-					}		
-
-					$returnString .= "</table>";	
+														
+						}	
+						
+						$returnString .= "</table><br><hr>";				
+						
+						$result->free();
+					}
+					else// query failed
+					{
+						$returnString .= "<br>FAILED while trying to generate the $tableName Inactive Employment report. Sorry for the inconvenience";
+					}
 					
-					$returnString .= "Date Generated: DATE";				
-					
-					$result->free();
-				}
-				else// query failed
-				{
-					$returnString = "Could not generate the report. Sorry for the inconvenience";
-					$returnString .= "<table border='1'>
-									  <tr>
-										<th>Employee Name</th>
-										<th>Hired</th>
-										<th>Terminated</th>
-										<th>Type</th>
-										<th>Reason For Leaving</th>
-									  </tr>";
-					$returnString .= "</table>";
 				}
 				
 				return $returnString;
