@@ -650,10 +650,10 @@ Date: December 8, 2013
 											UPDATE seasonal_employee 
 											JOIN Employee ON ft_employee_id = empID
 											JOIN Person ON person_id = p_id
-											SET date_of_hire = '" . $dateOfHire . "', 
-											date_of_termination = '" . $dateOfTermination . "', 
+											SET date_of_hire = '" . $season . "', 
+											date_of_termination = " . $year . ", 
 											reason_for_termination = '" . $reasonForTermination . "', 
-											salary = " . $hourlyRate . " 
+											salary = " . $piecePay . " 
 											WHERE ;";
 						}
 						if(!$queryResult)
