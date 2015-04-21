@@ -9,6 +9,13 @@ INSERT INTO Employee_Status (status_type) VALUES ('Active');
 INSERT INTO Employee_Status (status_type) VALUES ('Inactive');
 INSERT INTO Employee_Status (status_type) VALUES ('Incomplete');
 
+SELECT * FROM Employee_Status;
+
+INSERT INTO Seasons VALUES('Spring', '03-21');
+INSERT INTO Seasons VALUES('Summer', '06-21');
+INSERT INTO Seasons VALUES('Fall', '09-21');
+INSERT INTO Seasons VALUES('Winter', '12-21');
+
 
 
 /* Insert Employees */

@@ -80,6 +80,7 @@ Date: December 8, 2013
 				$typeOfReport = $_POST['reportToGenerateDropDown'];
 				$companyName = $_POST['companyName'];
 				$generatedReport = "";
+				$returnedString = "";
 				
 				$link = mysqli_connect($serverName, $userName, $password, $databaseName);// connect to the database
 
@@ -93,7 +94,23 @@ Date: December 8, 2013
 					switch($typeOfReport)
 					{
 					case "sReport":
-						$generatedReport = generate_sReport($link, $companyName);
+						$returnedString = generate_sTable($link);
+						if($returnedString != "")
+						{
+							echo "$returnedString";
+						}
+						else
+						{
+							if(!$link)
+							{
+								 echo "<br>Error: Could not connect to the database.";
+							}
+							else
+							{
+								$generatedReport = generate_sReport($link, $companyName);
+							}
+							
+						}
 						$sReportSelected = "selected";
 						break;
 					case "whwReport":
@@ -118,6 +135,7 @@ Date: December 8, 2013
 					
 				}
 				
+				$link->close();
 			}	
 			else// user either hasn't chosen a report type or a company name (or both)
 			{
@@ -161,8 +179,8 @@ Date: December 8, 2013
 			
 			echo "<form method='post'>		
 					What is the name of the company to display: &nbsp&nbsp&nbsp&nbsp&nbsp
-					<input type='text' name='companyName' value='$companyName'><br>
-					Which type of report would you like to display? 
+					<input type='text' name='companyName' value=\"$companyName\"><br><br>
+					Which type of report would you like to display? &nbsp
 						<select name='reportToGenerateDropDown'>
 										<option value=''></option>
 										<option value='sReport' $sReportSelected>Seniority</option>
@@ -180,7 +198,8 @@ Date: December 8, 2013
 				  
 			
 			echo "$generatedReport";
-				
+			
+//$link->close();
 			?>
 
 		</div>
@@ -202,11 +221,91 @@ Date: December 8, 2013
 			 *             that the report should be generated for
 			 * Return: The ___ Report as a string
 			 */
+			function generate_sTable($link)
+			{
+				$returnString = "";
+								
+				$queryString = "DROP TABLE IF EXISTS seniority_report;";
+				if(!$link->query($queryString))
+				{
+					$returnString = "There was a problem dropping the Seniority Table in the Database.";
+				}
+				else// previous query succeeded
+				{
+					$queryString = "CREATE TABLE seniority_report
+								(
+									emp_name varchar(100),
+									emp_sin int,
+									emp_type varchar(50),
+									hire_date date,
+									company_name varchar(50),
+									length_of_service int
+								);";
+								
+					if(!$link->query($queryString))
+					{
+						$returnString = "There was a problem creating the Seniority Table in the Database.";
+					}
+					else// previous query succeeded
+					{
+						$queryString = "INSERT INTO seniority_report
+										SELECT concat(p_firstname, ' ', p_lastname), si_number, 'Fulltime', ft_date_of_hire, companyName, (DATEDIFF(CURDATE(), ft_date_of_hire))
+										FROM FT_View
+										JOIN Company
+										ON ft_company_id = companyID;";
+								
+						if(!$link->query($queryString))
+						{
+							$returnString = "There was a problem inserting into the Seniority Table.";
+						}
+						else// previous query succeeded
+						{
+							$queryString = 	"INSERT INTO seniority_report
+											SELECT concat(p_firstname, p_lastname), si_number, 'Parttime', pt_date_of_hire, companyName, (DATEDIFF(CURDATE(), pt_date_of_hire))
+											FROM PT_View
+											JOIN Company
+											ON pt_company_id = companyID;";	
+												
+							if(!$link->query($queryString))
+							{
+								$returnString = "There was a problem inserting into the Seniority Table.";
+							}
+							else// previous query succeeded
+							{
+								$queryString = "INSERT INTO seniority_report
+												SELECT concat(p_firstname, p_lastname), si_number, 'Seasonal', CONCAT(season_year, season_start_date), companyName, (DATEDIFF(CURDATE(), CONCAT(season_year, season_start_date)))
+												FROM SN_View
+												JOIN Seasons
+												ON season = season_start_date
+												JOIN Company
+												ON sn_company_id = companyID;";		
+
+								if(!$link->query($queryString))
+								{
+									$returnString = "There was a problem inserting into the Seniority Table.";
+								}			
+							}
+						}
+					}				
+
+				}															
+				
+				return $returnString;
+			}
+			
+			/*
+			 * Function: 
+			 * Description: This function generates the ___ Report and returns it as a string
+			 * Parameters: The link to the database connection and the name of the company
+			 *             that the report should be generated for
+			 * Return: The ___ Report as a string
+			 */
 			function generate_sReport($link, $companyName)
 			{
-				$returnString = "Seniority Report ($companyName)<br>";
-				$queryString = "SELECT * FROM sReport WHERE companyName=$companyName;";
-			
+				$returnString = "Seniority Report for: <b>$companyName</b><br><br>";
+								
+				$queryString = "SELECT * FROM seniority_report WHERE company_name=\"$companyName\";";
+				
 				if($result = $link->query($queryString))
 				{
 					/* add the headings for each column */
@@ -216,18 +315,48 @@ Date: December 8, 2013
 										<th>SIN</th>
 										<th>Type</th>
 										<th>Date Of Hire</th>
-										<th>Years of Service</th>
+										<th>Length of Service</th>
 									  </tr>";
 					
 					while($row = $result->fetch_assoc())
-					{
+					{					
+						$serviceLengthDays = $row["length_of_service"];// the length of service is stored in days
+						$serviceLength = 0;// used to hold the length of service in the correct units
+						$timeUnits = "days";
+						
+						if($serviceLengthDays > 31)
+						{
+							if($serviceLengthDays > 365)
+							{	
+								$timeUnits = "years";
+								while($serviceLengthDays > 365)
+								{
+									$serviceLength++;
+									$serviceLengthDays = $serviceLengthDays - 365;
+								}
+							}
+							else// measured in months
+							{
+								$timeUnits = "months";
+								while($serviceLengthDays > 31)
+								{
+									$serviceLength++;
+									$serviceLengthDays = $serviceLengthDays - 31;
+								}
+							}
+							
+						}
+						else// measured in days
+						{
+							$serviceLength = $serviceLengthDays;
+						}
+						
 						$returnString .= "<tr>
-											<td>" . $row[""] . "</td>
-											<td>" . $row[""] . "</td>
-											<td>" . $row[""] . "</td>
-											<td>" . $row[""] . "</td>
-											<td>" . $row[""] . "</td>
-											<td>" . $row[""] . "</td>
+											<td>" . $row["emp_name"] . "</td>
+											<td>" . $row["emp_sin"] . "</td>
+											<td>" . $row["emp_type"] . "</td>
+											<td>" . $row["hire_date"] . "</td>
+											<td>" . $serviceLength . " $timeUnits</td>
 										  </tr>";
 													
 					}		
@@ -241,6 +370,7 @@ Date: December 8, 2013
 				else// query failed
 				{
 					$returnString = "Could not generate the report. Sorry for the inconvenience";
+					$returnString .= "$queryString";
 					
 					$returnString .= "<table border='1'>
 									  <tr>

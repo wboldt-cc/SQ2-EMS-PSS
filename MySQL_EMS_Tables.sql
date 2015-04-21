@@ -119,14 +119,32 @@ CREATE TABLE Seasonal_Employee
 	FOREIGN KEY (current_status) REFERENCES Employee_Status(status_id)
 );
 
+CREATE TABLE Seasons
+(
+	season_type varchar(7) PRIMARY KEY,
+    season_start_date varchar(6)
+);
+
 
 CREATE TABLE Time_Cards
 (
 	tc_employee_id int,
 	tc_company_id int,
 	pay_period_start_date date,
-	hours_worked float,
-	pieces_completed float,
+    mon_hours float,
+    tues_hours float,
+    wed_hours float,
+    thurs_hours float,
+    fri_hours float,
+    sat_hours float,
+    sun_hours float,
+    mon_pieces float,
+    tues_pieces float,
+    wed_pieces float,
+    thurs_pieces float,
+    fri_pieces float,
+    sat_pieces float,
+    sun_pieces float,
 	PRIMARY KEY (tc_employee_id, tc_company_id, pay_period_start_date),
     FOREIGN KEY (tc_employee_id) REFERENCES EMPLOYEE(emp_id),
     FOREIGN KEY (tc_company_id) REFERENCES Company(companyID)
