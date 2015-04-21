@@ -264,14 +264,16 @@ ON (CT_view.si_number = CT_Payroll.si_num) AND (CT_View.ct_company_id = (SELECT 
 CREATE TABLE SN_active
 (
 	f_name varchar(100),
-    doh date,
+    doh int,
     av_hours float,
     company_name varchar(50)
 );
 
 INSERT INTO SN_active
-SELECT CONCAT(p_lastname, ', ', p_firstname) AS fname, date_of_hire, AVG(worked_hours), company_id
+SELECT CONCAT(p_lastname, ', ', p_firstname) AS fname, CONCAT(season_year, season_start_date), AVG(worked_hours), company_id
 FROM SN_View
 JOIN SN_Payroll
 ON (SN_view.si_number = SN_Payroll.si_num) AND (SN_View.ft_company_id = (SELECT companyID FROM Company WHERE company_id = companyName))
+Join Seasons
+ON season = season_type
 GROUP BY fname, date_of_hire, company_id;
