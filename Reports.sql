@@ -211,24 +211,68 @@ CREATE VIEW SN_hours AS
 SELECT full_name, company_id, si_num, worked_hours
 FROM SN_Payroll;
 
-/*
-CREATE VIEW FT_hours AS
-SELECT CONCAT(p_lastname, ', ', p_firstname) AS 'Name', ft_company_id AS 'Company', si_number AS 'SIN', hours_worked AS 'Hours', pay_period_start_date AS 'Period'
-FROM FT_View
-JOIN Time_Cards
-ON (ft_employee_id = tc_employee_id) AND (ft_company_id = tc_company_id);
-
-CREATE VIEW PT_hours AS
-SELECT CONCAT(p_lastname, ', ', p_firstname) AS 'Name', pt_company_id AS 'Company', si_number AS 'SIN', hours_worked AS 'Hours', pay_period_start_date AS 'Period'
-FROM PT_View
-JOIN Time_Cards
-ON (pt_employee_id = tc_employee_id) AND (pt_company_id = tc_company_id);
-
-CREATE VIEW SN_hours AS
-SELECT CONCAT(p_lastname, ', ', p_firstname) AS 'Name', sn_company_id AS 'Company', si_number AS 'SIN', hours_worked AS 'Hours', pay_period_start_date AS 'Period'
-FROM SN_View
-JOIN Time_Cards
-ON (sn_employee_id = tc_employee_id) AND (sn_company_id = tc_company_id);
-*/
 
 /* Active Employees */
+CREATE TABLE FT_active
+(
+	f_name varchar(100),
+    doh date,
+    av_hours float,
+    company_name varchar(50)
+);
+
+INSERT INTO FT_active
+SELECT CONCAT(p_lastname, ', ', p_firstname) AS fname, date_of_hire, AVG(worked_hours), company_id
+FROM FT_View
+JOIN FT_Payroll
+ON (FT_view.si_number = FT_Payroll.si_num) AND (FT_View.ft_company_id = (SELECT companyID FROM Company WHERE company_id = companyName))
+GROUP BY fname, date_of_hire, company_id;
+
+
+CREATE TABLE PT_active
+(
+	f_name varchar(100),
+    doh date,
+    av_hours float,
+    company_name varchar(50)
+);
+
+INSERT INTO FT_active
+SELECT CONCAT(p_lastname, ', ', p_firstname) AS fname, date_of_hire, AVG(worked_hours), company_id
+FROM PT_View
+JOIN PT_Payroll
+ON (PT_view.si_number = PT_Payroll.si_num) AND (PT_View.Pt_company_id = (SELECT companyID FROM Company WHERE company_id = companyName))
+GROUP BY fname, date_of_hire, company_id;
+
+
+
+CREATE TABLE CT_active
+(
+	f_name varchar(100),
+    doh date,
+    av_hours float,
+    company_name varchar(50)
+);
+
+INSERT INTO CT_active
+SELECT p_lastname AS fname, date_of_hire, AVG(worked_hours), company_id
+FROM CT_View
+JOIN CT_Payroll
+ON (CT_view.si_number = CT_Payroll.si_num) AND (CT_View.ct_company_id = (SELECT companyID FROM Company WHERE company_id = companyName))
+GROUP BY fname, date_of_hire, company_id;
+
+
+CREATE TABLE SN_active
+(
+	f_name varchar(100),
+    doh date,
+    av_hours float,
+    company_name varchar(50)
+);
+
+INSERT INTO SN_active
+SELECT CONCAT(p_lastname, ', ', p_firstname) AS fname, date_of_hire, AVG(worked_hours), company_id
+FROM SN_View
+JOIN SN_Payroll
+ON (SN_view.si_number = SN_Payroll.si_num) AND (SN_View.ft_company_id = (SELECT companyID FROM Company WHERE company_id = companyName))
+GROUP BY fname, date_of_hire, company_id;
