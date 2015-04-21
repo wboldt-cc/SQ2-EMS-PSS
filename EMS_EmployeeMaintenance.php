@@ -51,6 +51,8 @@ Date: December 8, 2013
 			$contractAmount = "";
 			$insertQuery = "";
 			$queryResult = "";
+			$queryType = "insert";
+			$saveButtonValue = "Save";
 			
 			if(isset($_POST['employeeTypeDropdown']))
 			{
@@ -113,6 +115,10 @@ Date: December 8, 2013
 			(isset($_SESSION['CompanyFromSearch'])) && ($_SESSION['CompanyFromSearch'] != "") &&
 			(isset($_SESSION['EmployeeTypeFromSearch'])) && ($_SESSION['EmployeeTypeFromSearch']!= ""))
 			{
+				$queryType = "update";
+				echo $queryType;
+				$saveButtonValue = "Save Changes";
+			
 				$SIN = $_SESSION['SINfromSearch'];
 				$_SESSION['SINfromSearch'] = "";// reset the session variable
 				
@@ -120,7 +126,7 @@ Date: December 8, 2013
 				$_SESSION['CompanyFromSearch'] = "";// reset the session variable
 				
 				$employeeType = $_SESSION['EmployeeTypeFromSearch'];
-				//$_SESSION['EmployeeTypeFromSearch'] = "";// reset the session variable
+				$_SESSION['EmployeeTypeFromSearch'] = "";// reset the session variable
 				
 				$link = mysqli_connect($serverName, $userName, $password, $databaseName);// connect to the database
 			
@@ -359,8 +365,11 @@ Date: December 8, 2013
 							"<th align='left'>Reason For Termination:</th>" +
 							"<td><input type='text' value='<?php echo $reasonForTermination; ?>' name='reasonForTermination'></td>" +
 						"</tr>" +
+						"<tr>" +
+							"<td><input type='hidden' value='<?php echo $queryType; ?>' name='queryType'></td>" +
+						"</tr>" +
 					"</table>" +
-					"</br><input type='submit' name='saveButton' value='Save'></input>" +
+					"</br><input type='submit' name='saveButton' value='<?php echo $saveButtonValue; ?>'></input>" +
 					"</form>";
 				} 
 				else if(document.getElementById('employeeTypeDropdown').value == 'ptEmployee')
@@ -406,8 +415,10 @@ Date: December 8, 2013
 							"<th align='left'>Reason For Termination:</th>" +
 							"<td><input type='text' value='<?php echo $reasonForTermination; ?>' name='reasonForTermination'></td>" +
 						"</tr>" +
-					"</table>" +
-					"</br><input type='submit' name='saveButton' value='Save'></input>" +
+						"<tr>" +
+							"<td><input type='hidden' value='<?php echo $queryType; ?>' name='queryType'></td>" +
+						"</tr>" +
+					"</table>" +"</br><input type='submit' name='saveButton' value='<?php echo $saveButtonValue; ?>'></input>" +
 					"</form>";
 				} 
 				else if(document.getElementById('employeeTypeDropdown').value == 'sEmployee')
@@ -453,8 +464,11 @@ Date: December 8, 2013
 							"<th align='left'>Reason For Termination:</th>" +
 							"<td><input type='text' value='<?php echo $reasonForTermination; ?>' name='reasonForTermination'></td>" +
 						"</tr>" +
+						"<tr>" +
+							"<td><input type='hidden' value='<?php echo $queryType; ?>' name='queryType'></td>" +
+						"</tr>" +
 					"</table>" +
-					"</br><input type='submit' name='saveButton' value='Save'></input>" +
+					"</table>" +"</br><input type='submit' name='saveButton' value='<?php echo $saveButtonValue; ?>'></input>" +
 					"</form>";
 				} 
 				else if(document.getElementById('employeeTypeDropdown').value == 'cEmployee')
@@ -496,8 +510,11 @@ Date: December 8, 2013
 							"<th align='left'>Reason For Termination:</th>" +
 							"<td><input type='text' value='<?php echo $reasonForTermination; ?>' name='reasonForTermination'></td>" +
 						"</tr>" +
+						"<tr>" +
+							"<td><input type='hidden' value='<?php echo $queryType; ?>' name='queryType'></td>" +
+						"</tr>" +
 					"</table>" +
-					"</br><input type='submit' name='saveButton' value='Save'></input>" +
+					"</table>" +"</br><input type='submit' name='saveButton' value='<?php echo $saveButtonValue; ?>'></input>" +
 					"</form>";
 				}
 			}
@@ -515,20 +532,45 @@ Date: December 8, 2013
 			{
 				if(isset($_POST['employeeTypeDropdown']))
 				{
+					$queryType = $_POST['queryType'];
+					
 					if($_POST['employeeTypeDropdown'] == 'ftEmployee')
-					{					
-						$insertQuery = "INSERT INTO Person (p_firstname, p_lastname, si_number, date_of_birth)";
-						$insertQuery .= " VALUES ('".  $firstName . "', '".  $lastName ."', ".  $SIN .", '".  $dateOfBirth ."');";
+					{			
+						if($queryType == "insert")
+						{
+							$insertQuery = "INSERT INTO Person (p_firstname, p_lastname, si_number, date_of_birth)";
+							$insertQuery .= " VALUES ('".  $firstName . "', '".  $lastName ."', ".  $SIN .", '".  $dateOfBirth ."');";
 
-						$insertQuery .= "INSERT INTO Employee (emp_id, person_id)";
-						$insertQuery .= " VALUES (LAST_INSERT_ID(), LAST_INSERT_ID());";
+							$insertQuery .= "INSERT INTO Employee (emp_id, person_id)";
+							$insertQuery .= " VALUES (LAST_INSERT_ID(), LAST_INSERT_ID());";
 
-						$insertQuery .= "INSERT INTO fulltime_employee";
-						echo $dateOfBirth."</br>";
-						echo $dateOfHire."</br>";
-						echo $dateOfTermination;
-						$insertQuery .= " VALUES (LAST_INSERT_ID(), (SELECT companyID FROM Company WHERE companyName = \"". $company ."\"), '". $dateOfHire ."', '". $dateOfTermination ."', '". $reasonForTermination ."', ". $salary .", (SELECT status_id FROM Employee_Status WHERE status_type = 'Active'));";
-						//$insertQuery .= " VALUES (2, 1, '2000-01-01', null, null, 555, 1);";
+							$insertQuery .= "INSERT INTO fulltime_employee";
+							if($dateOfTermination != "")
+							{
+								$insertQuery .= " VALUES (LAST_INSERT_ID(), (SELECT companyID FROM Company WHERE companyName = \"". $company ."\"), '". $dateOfHire ."', '". $dateOfTermination ."', '". $reasonForTermination ."', ". $salary .", (SELECT status_id FROM Employee_Status WHERE status_type = 'Active'));";
+							}
+							else
+							{
+								$insertQuery .= " VALUES (LAST_INSERT_ID(), (SELECT companyID FROM Company WHERE companyName = \"". $company ."\"), '". $dateOfHire ."', null, '". $reasonForTermination ."', ". $salary .", (SELECT status_id FROM Employee_Status WHERE status_type = 'Active'));";
+							}
+						} 
+						else if($queryType == "update")
+						{
+							$insertQuery = "UPDATE Person
+											SET p_firstname = '" . $firstName . "', 
+											p_lastname = '" . $lastName ."', 
+											si_number = " . $SIN . ", 
+											date_of_birth = '" . $dateOfBirth . "' 
+											WHERE si_number = " . $SIN . ";
+											UPDATE fulltime_employee 
+											JOIN Employee ON ft_employee_id = empID
+											JOIN Person ON person_id = p_id
+											SET date_of_hire = '" . $dateOfHire . "', 
+											date_of_termination = '" . $dateOfTermination . "', 
+											reason_for_termination = '" . $reasonForTermination . "', 
+											salary = " . $salary . " 
+											WHERE ;";
+						}
 						$queryResult = $link->multi_query($insertQuery);
 						
 						if(!$queryResult)
@@ -539,15 +581,41 @@ Date: December 8, 2013
 					
 					if($_POST['employeeTypeDropdown'] == 'ptEmployee')
 					{
-						$insertQuery = "INSERT INTO Person (p_firstname, p_lastname, si_number, date_of_birth)";
-						$insertQuery .= "VALUES ('".  $firstName . "', '".  $lastName ."', ".  $SIN .", '".  $dateOfBirth ."');";
+						if($queryType == "insert")
+						{
+							$insertQuery = "INSERT INTO Person (p_firstname, p_lastname, si_number, date_of_birth)";
+							$insertQuery .= " VALUES ('".  $firstName . "', '".  $lastName ."', ".  $SIN .", '".  $dateOfBirth ."');";
 
-						$insertQuery .= "INSERT INTO Employee (emp_id, person_id)";
-						$insertQuery .= "VALUES (LAST_INSERT_ID(), LAST_INSERT_ID());";
+							$insertQuery .= "INSERT INTO Employee (emp_id, person_id)";
+							$insertQuery .= " VALUES (LAST_INSERT_ID(), LAST_INSERT_ID());";
 
-						$insertQuery .= "INSERT INTO parttime_employee";
-						$insertQuery .= "VALUES (LAST_INSERT_ID(), LAST_INSERT_ID(),'". $dateOfHire ."', '". $dateOfTermination ."', ". $reasonForTermination .",". $hourlyRate .", (SELECT status_id FROM Employee_Status WHERE status_type = 'Active'));";
-						
+							$insertQuery .= "INSERT INTO parttime_employee";
+							if($dateOfTermination != "")
+							{
+								$insertQuery .= " VALUES (LAST_INSERT_ID(), (SELECT companyID FROM Company WHERE companyName = \"". $company ."\"), '". $dateOfHire ."', '". $dateOfTermination ."', '". $reasonForTermination ."', ". $hourlyRate .", (SELECT status_id FROM Employee_Status WHERE status_type = 'Active'));";
+							}
+							else
+							{
+								$insertQuery .= " VALUES (LAST_INSERT_ID(), (SELECT companyID FROM Company WHERE companyName = \"". $company ."\"), '". $dateOfHire ."', null, '". $reasonForTermination ."', ". $hourlyRate .", (SELECT status_id FROM Employee_Status WHERE status_type = 'Active'));";
+							}
+						}
+						else if($queryType == "update")
+						{
+							$insertQuery = "UPDATE Person
+											SET p_firstname = '" . $firstName . "', 
+											p_lastname = '" . $lastName ."', 
+											si_number = " . $SIN . ", 
+											date_of_birth = '" . $dateOfBirth . "' 
+											WHERE si_number = " . $SIN . ";
+											UPDATE parttime_employee 
+											JOIN Employee ON ft_employee_id = empID
+											JOIN Person ON person_id = p_id
+											SET date_of_hire = '" . $dateOfHire . "', 
+											date_of_termination = '" . $dateOfTermination . "', 
+											reason_for_termination = '" . $reasonForTermination . "', 
+											salary = " . $hourlyRate . " 
+											WHERE ;";
+						}
 						$queryResult = $link->multi_query($insertQuery);
 						
 						if(!$queryResult)
@@ -557,18 +625,37 @@ Date: December 8, 2013
 					}
 					
 					if($_POST['employeeTypeDropdown'] == 'sEmployee')
-					{					
-						$insertQuery = "INSERT INTO Person (p_firstname, p_lastname, si_number, date_of_birth)";
-						$insertQuery .= "VALUES ('".  $firstName . "', '".  $lastName ."', ".  $SIN .", '".  $dateOfBirth ."');";
+					{
+						if($queryType == "insert")
+						{
+							$insertQuery = "INSERT INTO Person (p_firstname, p_lastname, si_number, date_of_birth)";
+							$insertQuery .= " VALUES ('".  $firstName . "', '".  $lastName ."', ".  $SIN .", '".  $dateOfBirth ."');";
 
-						$insertQuery .= "INSERT INTO Employee (emp_id, person_id)";
-						$insertQuery .= "VALUES (LAST_INSERT_ID(), LAST_INSERT_ID());";
+							$insertQuery .= "INSERT INTO Employee (emp_id, person_id)";
+							$insertQuery .= " VALUES (LAST_INSERT_ID(), LAST_INSERT_ID());";
 
-						$insertQuery .= "INSERT INTO Seasonal_Employee";
-						$insertQuery .= "VALUES (LAST_INSERT_ID(), LAST_INSERT_ID(),'". $season ."', '". $year ."', ". $reasonForTermination .",". $piecePay .", (SELECT status_id FROM Employee_Status WHERE status_type = 'Active'));";
-						
-						$queryResult = $link->multi_query($insertQuery);
-						
+							$insertQuery .= "INSERT INTO seasonal_employee";
+							$insertQuery .= " VALUES (LAST_INSERT_ID(), (SELECT companyID FROM Company WHERE companyName = \"". $company ."\"), '". $season ."', ". $year .", ". $piecePay .", '". $reasonForTermination ."', (SELECT status_id FROM Employee_Status WHERE status_type = 'Active'));";
+							
+							$queryResult = $link->multi_query($insertQuery);
+						}
+						else if($queryType == "update")
+						{
+							$insertQuery = "UPDATE Person
+											SET p_firstname = '" . $firstName . "', 
+											p_lastname = '" . $lastName ."', 
+											si_number = " . $SIN . ", 
+											date_of_birth = '" . $dateOfBirth . "' 
+											WHERE si_number = " . $SIN . ";
+											UPDATE seasonal_employee 
+											JOIN Employee ON ft_employee_id = empID
+											JOIN Person ON person_id = p_id
+											SET date_of_hire = '" . $dateOfHire . "', 
+											date_of_termination = '" . $dateOfTermination . "', 
+											reason_for_termination = '" . $reasonForTermination . "', 
+											salary = " . $hourlyRate . " 
+											WHERE ;";
+						}
 						if(!$queryResult)
 						{
 							echo "Could Not Add Employee";
