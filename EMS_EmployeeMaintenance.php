@@ -627,7 +627,7 @@ Date: December 8, 2013
 					if($_POST['employeeTypeDropdown'] == 'sEmployee')
 					{
 						if($queryType == "insert")
-						{
+						{////////////////////////////////////////////////////////////////////////////////
 							$insertQuery = "INSERT INTO Person (p_firstname, p_lastname, si_number, date_of_birth)";
 							$insertQuery .= " VALUES ('".  $firstName . "', '".  $lastName ."', ".  $SIN .", '".  $dateOfBirth ."');";
 
