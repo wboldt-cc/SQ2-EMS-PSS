@@ -172,7 +172,7 @@ Date: April 17, 2015
 			if(($lastNameToSearchFor != "") || ($firstNameToSearchFor != "") || ($SINtoSearchFor != ""))// make sure at least one of the search criteria pieces is not blank
 			{
 				$link = mysqli_connect($serverName, $userName, $password, $databaseName);// connect to the database
-								
+				
 				if(!$link)//if the database connection failed display an error message
 				{
 					 echo "<br>Error: Could not connect to the database.";
