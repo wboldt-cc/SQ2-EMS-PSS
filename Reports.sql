@@ -277,3 +277,36 @@ ON (SN_view.si_number = SN_Payroll.si_num) AND (SN_View.ft_company_id = (SELECT 
 Join Seasons
 ON season = season_type
 GROUP BY fname, date_of_hire, company_id;
+
+
+/* Inactive reports */
+CREATE TABLE Inactive
+(
+	f_name varchar(50),
+    hired date,
+    date_temrinated date,
+    emp_type varchar(15),
+    reason varchar(50)
+);
+
+INSERT INTO Inactive
+SELECT CONCAT(p_lastname, ', ', p_firstname), date_of_hire, date_of_termination, 'Fulltime', reason_for_termination
+FROM FT_View
+WHERE current_status = (SELECT status_id FROM Employee_Status WHERE status_type = 'Inactive');
+
+INSERT INTO Inactive
+SELECT CONCAT(p_lastname, ', ', p_firstname), date_of_hire, date_of_termination, 'Parttime', reason_for_termination
+FROM PT_View
+WHERE current_status = (SELECT status_id FROM Employee_Status WHERE status_type = 'Inactive');
+
+INSERT INTO Inactive
+SELECT p_lastname, contract_start_date, contract_stop_date, 'Contract', reason_for_termination
+FROM CT_View
+WHERE current_status = (SELECT status_id FROM Employee_Status WHERE status_type = 'Inactive');
+
+INSERT INTO Inactive
+SELECT CONCAT(p_lastname, ', ', p_firstname), CONCAT(season_year, season_start_date), null, 'Fulltime', reason_for_termination
+FROM SN_View
+JOIN Seasons
+ON season = season_type
+WHERE current_status = (SELECT status_id FROM Employee_Status WHERE status_type = 'Inactive');
