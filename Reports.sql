@@ -255,11 +255,10 @@ CREATE TABLE CT_active
 );
 
 INSERT INTO CT_active
-SELECT p_lastname AS fname, date_of_hire, AVG(worked_hours), company_id
+SELECT p_lastname AS fname, date_of_hire, '--', company_id
 FROM CT_View
 JOIN CT_Payroll
-ON (CT_view.si_number = CT_Payroll.si_num) AND (CT_View.ct_company_id = (SELECT companyID FROM Company WHERE company_id = companyName))
-GROUP BY fname, date_of_hire, company_id;
+ON (CT_view.si_number = CT_Payroll.si_num) AND (CT_View.ct_company_id = (SELECT companyID FROM Company WHERE company_id = companyName));
 
 
 CREATE TABLE SN_active
